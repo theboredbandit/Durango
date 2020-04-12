@@ -1,15 +1,33 @@
 body {
-  background: #fafafa;
+  background: #768492;
   color: #333333;
   margin-top: 5rem;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,h2, h3, h4, h5, h6 {
   color: #444444;
 }
+/*added from css*/
+#demo {
+  font-size: 1em;
+  color: white;
+  text-transform: uppercase;
+  padding-bottom: 1em;  
+}
 
+span {
+  border-right: .05em solid;
+  animation: caret 1s steps(1) infinite;
+}
+
+@keyframes caret {
+  50% {
+    border-color: transparent;
+  }
+}
+/*till here*/
 .bg-steel {
-  background-color: #212120;
+  background-color: #000000;
 }
 
 .site-header .navbar-nav .nav-link {
