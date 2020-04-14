@@ -14,7 +14,7 @@ class User(db.Model, UserMixin):
     email=db.Column(db.String(100),unique=True, nullable=False)
     instituteId=db.Column(db.String(20), unique=True, nullable=False)
     mobileNum=db.Column(db.String(10), unique=True, nullable=False)
-    image_file=db.Column(db.String(20),nullable=False,default='default.jpg')
+    image_file=db.Column(db.String(20),nullable=False,default='user.png')
     password=db.Column(db.String(50),nullable=False)
     tasks=db.relationship('Task',backref='author',lazy=True)
     def __repr__(self):
