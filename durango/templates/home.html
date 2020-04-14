@@ -1,5 +1,6 @@
-{% extends "layout.html"%}
+{%extends "layout.html" %}
 {% block content %}
+
 <h1>Welcome to Durango</h1>
 <p id="demo"></p>
 
@@ -47,17 +48,4 @@ document.addEventListener('DOMContentLoaded',function(event){
   StartTextAnimation(0);
 });
 </script>
-  {% for task in tasks %}   
-    <article class="media content-section">
-      <div class="media-body">
-        <div class="article-metadata">
-          <p class="mr-4 ">{{ task.date }}  | {{ task.time }}
-          <small class="text-black ml-3"> {{task.status}} 
-          </small></p>
-        </div>
-        <h2><a class="article-title" href="#">{{ task.title }}</a></h2>
-        <p class="article-content">{{ task.details }}</p>
-      </div>
-    </article>
-  {% endfor %}
-{% endblock content%}
+{% endblock %}

@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from wtforms import StringField,PasswordField,SubmitField,BooleanField
+from wtforms import StringField,PasswordField,SubmitField,BooleanField,TextAreaField
+from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired,Length,Email,EqualTo,ValidationError
-from durango.models import User     
+from durango.models import User,Task    
 class RegistrationForm(FlaskForm):
 	username=StringField('Username',validators=[DataRequired(),Length(min=2,max=20)])#field should not be empty and length should be between 2 and 20
 	email=StringField('Email',validators=[DataRequired(),Email()])
@@ -66,3 +67,11 @@ class LoginForm(FlaskForm):
 	#confirm_password=PasswordField('Confirm_Password',validators=[DataRequired(), EqualTo('password')])
 	remember = BooleanField('Remember Me')
 	submit=SubmitField("Login")
+
+class TaskForm(FlaskForm):
+	title=StringField('Title',validators=[DataRequired()])
+	details=TextAreaField('Task-details',validators=[DataRequired()])
+	date=DateField('Date',validators=[DataRequired()],format='%Y-%m-%d')
+	time=StringField('Time',validators=[DataRequired()])
+	status=StringField('Status',validators=[DataRequired()])
+	submit=SubmitField('Post')

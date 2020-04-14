@@ -23,10 +23,11 @@ class User(db.Model, UserMixin):
 class Task(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.String(100), nullable=False)
-    date=db.Column(db.DateTime,nullable=False,default=datetime.utcnow)
+    date=db.Column(db.Date(),nullable=False)
+    time=db.Column(db.String(20),nullable=False)
     details=db.Column(db.Text,nullable=False)
     status=db.Column(db.String(20),nullable=False)
     user_id=db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
 
     def __repr__(self):
-        return f"Task('{self.title}','{self.date}','{self.status}')"
+        return f"Task('{self.title}','{self.date}','{self.time}',{self.status}')"

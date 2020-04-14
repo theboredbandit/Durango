@@ -11,4 +11,5 @@ bcrypt =Bcrypt(app)
 login_manager=LoginManager(app)
 login_manager.login_view='login' #setting the route to login
 login_manager.login_message_category='info'
+
 from durango import routes
