@@ -1,4 +1,4 @@
-from flask import render_template, url_for, flash, redirect,request
+from flask import render_template, url_for, flash, redirect,request,abort
 from durango import app,db,bcrypt #using bcrypt to has the passwords in user database
 from durango.models import User, Task
 from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm
@@ -12,6 +12,7 @@ def home():
 
 
 @app.route("/dashboard")
+@login_required
 def dashboard():
     tasks=Task.query.all()
     return render_template('dashboard.html', title='Dashboard', tasks=tasks)
@@ -83,4 +84,45 @@ def new_task():
         db.session.commit()        
         flash('Task created!','success')
         return redirect(url_for('dashboard'))
-    return render_template('create_task.html',title='New Task',form=form)
+    return render_template('create_task.html',title='New Task',form=form, legend='Add Task')
+
+@app.route("/task/ <int:task_id>")
+@login_required
+def task(task_id):
+    task=Task.query.get_or_404(task_id) #get_or_404 returns the requested page if it exists else it returns a 404 error
+    return render_template('task.html',title=task.title,task=task)
+
+@app.route("/task/ <int:task_id>/update",methods=['GET', 'POST'])
+@login_required
+def update_task(task_id):
+    task=Task.query.get_or_404(task_id)
+    if task.user_id!=current_user.id:  # this is optional since we display only a prticular user's tasks in his dashboard
+        abort(403)
+    form=TaskForm()
+    if request.method=='GET':
+        form.title.data=task.title
+        form.details.data=task.details
+        form.date.data=task.date
+        form.time.data=task.time
+        form.status.data=task.status
+    elif form.validate_on_submit():
+        task.title=form.title.data
+        task.details=form.details.data
+        task.date=form.date.data
+        task.time=form.time.data
+        task.status=form.status.data
+        db.session.commit()        
+        flash('Task updated!','success')
+        return redirect(url_for('task', task_id=task.id))
+    return render_template('create_task.html',title='Update_post',form=form, legend='Update Post')
+
+@app.route("/task/ <int:task_id>/delete",methods=['GET', 'POST'])
+@login_required
+def delete_task(task_id):
+    task=Task.query.get_or_404(task_id)
+    if task.user_id!=current_user.id:  # this is optional since we display only a prticular user's tasks in his dashboard
+        abort(403)
+    db.session.delete(task)
+    db.session.commit()
+    flash('Task deleted!','success')
+    return redirect(url_for('dashboard'))
