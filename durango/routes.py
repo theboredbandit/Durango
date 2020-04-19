@@ -79,7 +79,7 @@ def account():
 def new_task():
     form=TaskForm()
     if form.validate_on_submit():
-        task=Task(title=form.title.data,date=form.date.data,time=form.time.data, details=form.details.data,status=form.status.data,user_id=current_user.id)
+        task=Task(title=form.title.data,date=form.date.data,starttime=form.starttime.data, endtime=form.endtime.data,details=form.details.data,status=form.status.data,user_id=current_user.id)
         db.session.add(task)
         db.session.commit()        
         flash('Task created!','success')

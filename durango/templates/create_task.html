@@ -46,16 +46,29 @@
                     {% endif %}
                 </div>
                <div class="form-group">
-                    {{ form.time.label(class="form-control-label") }}
-                    {% if form.time.errors %}
-                        {{ form.time(class="form-control form-control-lg is-invalid") }}
+                    {{ form.starttime.label(class="form-control-label") }}
+                    {% if form.starttime.errors %}
+                        {{ form.starttime(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
-                            {% for error in form.time.errors %}
+                            {% for error in form.starttime.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.time(class="form-control form-control-lg") }}
+                        {{ form.starttime(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                 <div class="form-group">
+                    {{ form.endtime.label(class="form-control-label") }}
+                    {% if form.endtime.errors %}
+                        {{ form.endtime(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.endtime.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.endtime(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
                 <div class="form-group">

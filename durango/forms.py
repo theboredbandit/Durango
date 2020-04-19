@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import StringField,PasswordField,SubmitField,BooleanField,TextAreaField
-from wtforms.fields.html5 import DateField
+from wtforms.fields.html5 import DateField,TimeField
 from wtforms.validators import DataRequired,Length,Email,EqualTo,ValidationError
 from durango.models import User,Task    
 class RegistrationForm(FlaskForm):
@@ -72,6 +72,7 @@ class TaskForm(FlaskForm):
 	title=StringField('Title',validators=[DataRequired()])
 	details=TextAreaField('Task-details',validators=[DataRequired()])
 	date=DateField('Date',validators=[DataRequired()],format='%Y-%m-%d')
-	time=StringField('Time',validators=[DataRequired()])
+	starttime=TimeField('Start Time',validators=[DataRequired()])
+	endtime=TimeField('End Time',validators=[DataRequired()])
 	status=StringField('Status',validators=[DataRequired()])
 	submit=SubmitField('Post')
