@@ -1,9 +1,12 @@
 from flask import render_template, url_for, flash, redirect,request,abort
-from durango import app,db,bcrypt #using bcrypt to has the passwords in user database
+from durango import app,db,bcrypt,celery #using bcrypt to has the passwords in user database
 from durango.models import User, Task
 from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm
 from flask_login import login_user,current_user,logout_user,login_required
+from sqlalchemy.orm.exc import NoResultFound
+from twilio.rest import Client
 
+from datetime import datetime, timedelta
 #everything here that begins with @ is a decorator
 @app.route("/")
 @app.route("/home")
@@ -74,18 +77,54 @@ def account():
     image_file=url_for('static',filename='profile_pics/' + current_user.image_file)
     return render_template('account.html',title='Account',image_file=image_file)
 
+
+
+
 @app.route("/task/new",methods=['GET', 'POST'])
 @login_required
 def new_task():
     form=TaskForm()
     if form.validate_on_submit():
-        task=Task(title=form.title.data,date=form.date.data,starttime=form.starttime.data, endtime=form.endtime.data,details=form.details.data,status=form.status.data,user_id=current_user.id)
-        db.session.add(task)
-        db.session.commit()        
+        task1=Task(title=form.title.data,date=form.date.data,starttime=form.starttime.data, endtime=form.endtime.data,details=form.details.data,status=form.status.data,user_id=current_user.id)
+        db.session.add(task1)
+        db.session.commit()  
+        #for sms reminder
+        dt=datetime.combine(form.date.data,form.starttime.data)
+        dt=dt-timedelta(hours=5,minutes=15)
+
+        send_sms_reminder.apply_async(args=[task1.id],eta=dt) 
+             
         flash('Task created!','success')
         return redirect(url_for('dashboard'))
     return render_template('create_task.html',title='New Task',form=form, legend='Add Task')
 
+####  code for sending sms reminder
+#####################start
+
+@celery.task()
+def send_sms_reminder(task1_id):
+    try:
+        task1 = Task.query.filter_by(id=task1_id).first()
+    except NoResultFound:
+        return
+    user=User.query.filter_by(id=task1.user_id).first()
+    #errt
+    #eatjk
+    body = "Hello "+user.username+"! " +task1.title+"is scheduled at 15 mins from now.\nTask details: "+task1.details
+
+    twilio_account_sid = "AC103eefd5343f4ec238f7fb6c45092d0a"
+    twilio_auth_token = "2de91c10b5ce9cd7e3efcec543470dec"
+    twilio_number = "+14784002746"
+
+    client = Client(twilio_account_sid, twilio_auth_token)
+
+
+    #to = user.mobileNum
+    client.messages.create(to=user.mobileNum,from_=twilio_number,body=body)
+
+
+
+#######################end
 @app.route("/task/ <int:task_id>")
 @login_required
 def task(task_id):
@@ -99,23 +138,24 @@ def update_task(task_id):
     if task.user_id!=current_user.id:  # this is optional since we display only a prticular user's tasks in his dashboard
         abort(403)
     form=TaskForm()
-    if request.method=='GET':
-        form.title.data=task.title
-        form.details.data=task.details
-        form.date.data=task.date
-        form.time.data=task.time
-        form.status.data=task.status
-    elif form.validate_on_submit():
-        task.title=form.title.data
-        task.details=form.details.data
+    if form.validate_on_submit():
+        task.title = form.title.data
+        task.details = form.details.data
         task.date=form.date.data
-        task.time=form.time.data
+        task.starttime=form.starttime.data
+        task.endtime=form.endtime.data
         task.status=form.status.data
-        db.session.commit()        
-        flash('Task updated!','success')
-        return redirect(url_for('task', task_id=task.id))
-    return render_template('create_task.html',title='Update_post',form=form, legend='Update Post')
-
+        db.session.commit()
+        flash('Task updated!', 'success')
+        return redirect(url_for('task',task_id=task.id))
+    elif request.method == 'GET':
+        form.title.data = task.title
+        form.details.data = task.details
+        form.date.data=task.date
+        form.starttime.data=task.starttime
+        form.endtime.data=task.endtime
+        form.status.data=task.status
+    return render_template('create_task.html', title='Update Task',form=form, legend='Update Task')
 @app.route("/task/ <int:task_id>/delete",methods=['GET', 'POST'])
 @login_required
 def delete_task(task_id):
@@ -126,3 +166,19 @@ def delete_task(task_id):
     db.session.commit()
     flash('Task deleted!','success')
     return redirect(url_for('dashboard'))
+
+
+
+#checking celery with a different task
+@app.route('/process/<name>')
+def process(name):
+    task=Task.query.filter_by(title='test task8').first()
+    dt=datetime.combine(task.date,task.starttime)
+    dt=dt-timedelta(hours=5,minutes=30)
+
+    reverse.apply_async(args=[name],eta=dt)
+    return 'I sent an async request'
+
+@celery.task()
+def reverse(string):
+    return string[::-1]

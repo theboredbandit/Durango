@@ -1,8 +1,10 @@
 from datetime import datetime
 from durango import db,login_manager;
 from flask_login import UserMixin
-#decorator for login
 
+import arrow;
+
+#decorator for login
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id)) #getting user by id
@@ -31,4 +33,10 @@ class Task(db.Model):
     user_id=db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
 
     def __repr__(self):
-        return f"Task('{self.title}','{self.date}','{self.time}',{self.status}')"
+        return f"Task('{self.title}','{self.date}','{self.starttime}','{self.endtime}',{self.status}')"
+
+    #def get_notification_time(self):
+      #  temp = arrow.get(datetime.combine(self.date, self.starttime))
+        #temp = arrow.get(self.starttime)
+       # reminder_time = temp 
+        #return reminder_time
