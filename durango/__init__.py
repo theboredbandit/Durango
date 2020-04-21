@@ -26,7 +26,7 @@ def make_celery(app):
                 return TaskBase.__call__(self, *args, **kwargs)
     celery.Task = ContextTask
     return celery
-
+#celery will be used for handling the asynchronous task of sending sms reminders
 celery=make_celery(app)
 db=SQLAlchemy(app)
 bcrypt =Bcrypt(app)

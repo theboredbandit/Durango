@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 @app.route("/")
 @app.route("/home")
 def home():
-    return render_template('home.html')
+    return render_template('home.html',db=db,User=User,Task=Task)
 
 
 @app.route("/dashboard")
@@ -60,24 +60,33 @@ def logout():
 @app.route("/account")
 @login_required
 def account():
+    image_file=url_for('static',filename='profile_pics/' + current_user.image_file)
+    return render_template('account.html',title='Account',image_file=image_file)
+
+
+@app.route("/account/update",methods=['GET', 'POST'])
+@login_required
+def update_account():
     form=UpdateAccountForm()
     if form.validate_on_submit():
        # hashed_password=bcrypt.generate_password_hash(form.password.data).decode('utf-8') #returns hashed password, decode converts it from byte to string
         current_user.username=form.username.data
         current_user.email=form.email.data
         current_user.instituteId=form.instituteId.data
-        current_user.mobileNum=form.mobileNum.data  
+        current_user.mobileNum=form.mobileNum.data
+        current_user.password=form.password.data 
         #db.session.add(user)
         db.session.commit()
         flash(f'Account updated successfully', 'success') #success is bootstrap class for the alert
         return redirect(url_for('account'))
     elif request.method=='GET':  #if submit btn is not clicked and account page is requested, it eill already fill the usename field with existing data
         form.username.data=current_user.username
-
+        form.email.data=current_user.email
+        form.mobileNum.data=current_user.mobileNum
+        form.instituteId.data=current_user.instituteId
+        form.password.data=current_user.password
     image_file=url_for('static',filename='profile_pics/' + current_user.image_file)
-    return render_template('account.html',title='Account',image_file=image_file)
-
-
+    return render_template('update_account.html',title='Update Account',image_file=image_file,form=form,legend='Update credentials')
 
 
 @app.route("/task/new",methods=['GET', 'POST'])
@@ -90,7 +99,7 @@ def new_task():
         db.session.commit()  
         #for sms reminder
         dt=datetime.combine(form.date.data,form.starttime.data)
-        dt=dt-timedelta(hours=5,minutes=15)
+        dt=dt-timedelta(hours=5,minutes=45)
 
         send_sms_reminder.apply_async(args=[task1.id],eta=dt) 
              
@@ -108,9 +117,8 @@ def send_sms_reminder(task1_id):
     except NoResultFound:
         return
     user=User.query.filter_by(id=task1.user_id).first()
-    #errt
-    #eatjk
-    body = "Hello "+user.username+"! " +task1.title+"is scheduled at 15 mins from now.\nTask details: "+task1.details
+
+    body = "Hello "+user.username+"! " +task1.title+" is scheduled at 15 mins from now.\nTask details: "+task1.details+"\n--Regards, Durango"
 
     twilio_account_sid = "AC103eefd5343f4ec238f7fb6c45092d0a"
     twilio_auth_token = "2de91c10b5ce9cd7e3efcec543470dec"
