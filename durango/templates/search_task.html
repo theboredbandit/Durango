@@ -1,0 +1,24 @@
+
+{% extends "layout.html"%}
+{% block content %}
+<h1> Tasks </h1>
+  {% for task in tasks %}
+  {%if current_user.id==task.user_id%} 
+  {%if form.search.data==task.title %}
+  
+    <article class="media content-section">
+      <div class="media-body">
+        <div class="article-metadata">
+          <p class="mr-2 ">{{ task.date }}  | {{ task.starttime }}--{{task.endtime}}
+          <small class="text-black ml-3"> {{task.status}} 
+          </small></p>
+        </div>
+        <h2><a class="article-title" href="{{url_for('task',task_id=task.id)}}">{{ task.title }}</a></h2>
+        <p class="article-content">{{ task.details }}</p>
+      </div>
+    </article>
+    {%endif%}
+  {%endif%}
+  {% endfor %}
+  
+{% endblock content%}

@@ -52,12 +52,11 @@ document.addEventListener('DOMContentLoaded',function(event){
     <div class="col-md-4">
       <div class="content-section">
         <h3>Infobar</h3>
-        <p class='text-muted'>You can put any information here you'd like.
+        <p class='text-bold'>Latest Stats
           <ul class="list-group">
-            <li class="list-group-item list-group-item-light">Latest Stats</li>
             <ol class="list-group">
-              <li class="list-group-item">{{db.session.query(User).count()}}+ users have already registered.</li>
-              <li class="list-group-item">A total of{{db.session.query(Task).count()}} tasks have been scheduled.</li>
+              <li class="list-group-item list-group-item-warning">{{db.session.query(User).count()}}+ users have already registered.</li>
+              <li class="list-group-item list-group-item-success">A total of {{db.session.query(Task).count()}} tasks have been scheduled.</li>
             </ol>
             
             
@@ -65,10 +64,9 @@ document.addEventListener('DOMContentLoaded',function(event){
 
             <li class="list-group-item list-group-item-light">Announcements</li>
             <li class="list-group-item list-group-item-light">Calendars</li>
-            <li class="list-group-item list-group-item-light">etc</li>
+            <li class="list-group-item list-group-item-light">News</li>
           </ul>
         </p>
       </div>
     </div>
-  </div>
 {% endblock %}

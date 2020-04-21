@@ -23,6 +23,8 @@ class User(db.Model, UserMixin):
         return f"User('{self.username}','{self.email}','{self.instituteId}','{self.mobileNum}','{self.image_file}')"
 
 class Task(db.Model):
+    ##__searchable__=['title','details']
+
     id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.String(100), nullable=False)
     date=db.Column(db.Date(),nullable=False)

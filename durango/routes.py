@@ -1,12 +1,13 @@
 from flask import render_template, url_for, flash, redirect,request,abort
 from durango import app,db,bcrypt,celery #using bcrypt to has the passwords in user database
 from durango.models import User, Task
-from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm
+from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm
 from flask_login import login_user,current_user,logout_user,login_required
 from sqlalchemy.orm.exc import NoResultFound
 from twilio.rest import Client
-
 from datetime import datetime, timedelta
+
+
 #everything here that begins with @ is a decorator
 @app.route("/")
 @app.route("/home")
@@ -14,11 +15,14 @@ def home():
     return render_template('home.html',db=db,User=User,Task=Task)
 
 
-@app.route("/dashboard")
+@app.route("/dashboard", methods=['GET', 'POST'])
 @login_required
 def dashboard():
     tasks=Task.query.all()
-    return render_template('dashboard.html', title='Dashboard', tasks=tasks)
+    form=SearchForm()
+    if form.validate_on_submit():
+        return render_template('search_task.html', title='Searched Task', tasks=tasks,form=form)
+    return render_template('dashboard.html', title='Dashboard', tasks=tasks,form=form)
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -101,7 +105,7 @@ def new_task():
         dt=datetime.combine(form.date.data,form.starttime.data)
         dt=dt-timedelta(hours=5,minutes=45)
 
-        send_sms_reminder.apply_async(args=[task1.id],eta=dt) 
+        #send_sms_reminder.apply_async(args=[task1.id],eta=dt) 
              
         flash('Task created!','success')
         return redirect(url_for('dashboard'))

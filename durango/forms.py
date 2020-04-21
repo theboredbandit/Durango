@@ -80,4 +80,9 @@ class TaskForm(FlaskForm):
 	starttime=TimeField('Start Time',validators=[DataRequired()])
 	endtime=TimeField('End Time',validators=[DataRequired()])
 	status=StringField('Status',validators=[DataRequired()])
-	submit=SubmitField('Post')
+	submit=SubmitField('Create')
+
+
+class SearchForm(FlaskForm):
+	search=StringField('Enter the task-title',validators=[DataRequired()])
+	submit=SubmitField('Search')

@@ -17,4 +17,29 @@
     </article>
   {%endif%}
   {% endfor %}
+</div>
+<div class="col-md-4">
+<div class="content-section">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Search</legend>
+        <div class="form-group">
+                    {{ form.search.label(class="form-control-label") }}
+
+                    {% if form.search.errors %}
+                        {{ form.search(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.search.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.search(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
 {% endblock content%}
