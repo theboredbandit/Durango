@@ -7,9 +7,24 @@
     <article class="media content-section">
       <div class="media-body">
         <div class="article-metadata">
-          <p class="mr-2 ">{{ task.date }}  | {{ task.starttime }}--{{task.endtime}}
-          <small class="text-black ml-3"> {{task.status}} 
-          </small></p>
+          <p class="mr-2 ">{{ task.date }}  | {{ task.starttime }}--{{task.endtime}} &nbsp;&nbsp;&nbsp;&nbsp;
+            {%if task.status=='To-do' %} 
+          <span class="text-black ml-3" style="color: blue"> {{task.status}} 
+          </span>
+          {%endif%}
+          {%if task.status=='Failed'%}
+          <span class="text-black ml-3" style="color: red"> {{task.status}} 
+          </span>
+          {%endif%}
+          {%if task.status=='Running'%}
+          <span class="text-black ml-3" style="color:  #666600"> {{task.status}} 
+          </span>
+          {%endif%}
+          {%if task.status=='Completed'%}
+          <span class="text-black ml-3" style="color: green"> {{task.status}} 
+          </span>
+          {%endif%}
+        </p>
         </div>
         <h2><a class="article-title" href="{{url_for('task',task_id=task.id)}}">{{ task.title }}</a></h2>
         <p class="article-content">{{ task.details }}</p>
@@ -18,7 +33,7 @@
   {%endif%}
   {% endfor %}
 </div>
-<div class="col-md-4">
+<div class="col-md-4" style="margin-top: 50px">
 <div class="content-section">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
@@ -38,8 +53,13 @@
                         {{ form.search(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
+                 <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
               </fieldset>
             </form>
           </div>
+          <a class="article-title" href="{{url_for('chart')}}" ><button type="button" class="btn btn-primary btn-lg btn-block">Analyse Activity</button></a>
         </div>
+
 {% endblock content%}

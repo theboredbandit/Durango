@@ -28,17 +28,12 @@ class Task(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.String(100), nullable=False)
     date=db.Column(db.Date(),nullable=False)
-    starttime=db.Column(db.Time,nullable=False)
-    endtime=db.Column(db.Time,nullable=False)
-    details=db.Column(db.Text,nullable=False)
+    starttime=db.Column(db.Time,nullable=True)
+    endtime=db.Column(db.Time,nullable=True)
+    remindtime=db.Column(db.Time,nullable=True)#remindtime
+    details=db.Column(db.Text,nullable=True)
     status=db.Column(db.String(20),nullable=False)
     user_id=db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
 
     def __repr__(self):
         return f"Task('{self.title}','{self.date}','{self.starttime}','{self.endtime}',{self.status}')"
-
-    #def get_notification_time(self):
-      #  temp = arrow.get(datetime.combine(self.date, self.starttime))
-        #temp = arrow.get(self.starttime)
-       # reminder_time = temp 
-        #return reminder_time

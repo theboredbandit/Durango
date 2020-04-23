@@ -26,18 +26,18 @@
 	      </button>
 	      <div class="collapse navbar-collapse" id="navbarToggle">
 	        <div class="navbar-nav mr-auto">
-	          <a class="nav-item nav-link" href="/">Home</a>
-	          <a class="nav-item nav-link" href="/dashboard">Dashboard</a>
+	          <a class="nav-item nav-link" href="/"><button type="button" class="btn btn-light">Home</button></a>
+	          <a class="nav-item nav-link" href="/dashboard"><button type="button" class="btn btn-light">Dashboard</button></a>
 	        </div>
           <div class="navbar-nav">
 	        <!-- Navbar Right Side -->
           {%if current_user.is_authenticated%}
-          <a class="nav-item nav-link" href="/task/new">Add Task</a>
-          <a class="nav-item nav-link" href="/logout">Logout</a>
-          <a class="nav-item nav-link" href="/account">Account</a>
+          <a class="nav-item nav-link" href="/task/new"><button type="button" class="btn btn-light">Add Task</button></a>
+          <a class="nav-item nav-link" href="/logout"><button type="button" class="btn btn-light">Logout</button></a>
+          <a class="nav-item nav-link" href="/account"><button type="button" class="btn btn-light">Account</button></a>
           {%else%}
-	        <a class="nav-item nav-link" href="/login">Login</a>
-	        <a class="nav-item nav-link" href="/register">Register</a>
+	        <a class="nav-item nav-link" href="/login"><button type="button" class="btn btn-light">Login</button></a>
+	        <a class="nav-item nav-link" href="/register"><button type="button" class="btn btn-light">Register</button></a>
 	         {%endif%}
           </div>
 	      </div>

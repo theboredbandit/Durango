@@ -15,7 +15,7 @@ h1,h2, h3, h4, h5, h6 {
   padding-bottom: 1em;  
 }
 
-span {
+span.st {
   border-right: .05em solid;
   animation: caret 1s steps(1) infinite;
 }

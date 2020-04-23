@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="  crossorigin="anonymous"></script>
+  </head>
+  <body>
+  	<div class="ct-chart ct-perfect-fourth"></div>
+
+  <script>
+
+  	var getdata=$.get('/data');
+  	getdata.done(function(results){
+		var data = {
+	  			// A labels array that can contain any sort of values
+			  labels: ['To-do', 'Completed', 'Running', 'Failed'],
+			  // Our series array that contains series objects or in this case series data arrays
+			  series: [
+			    results.results
+			  ]
+		};
+		var options={
+			width:800,
+			height:600
+		}
+
+		// Create a new line chart object where as first parameter we pass in a selector
+		// that is resolving to our chart container element. The Second parameter
+		// is the actual data object.
+		var lineChart=new Chartist.Line('.ct-chart', data,options);
+});
+  </script>
+
+    </body>
+</html>

@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from wtforms import StringField,PasswordField,SubmitField,BooleanField,TextAreaField
+from wtforms import StringField,PasswordField,SubmitField,BooleanField,TextAreaField,SelectField
 from wtforms.fields.html5 import DateField,TimeField
-from wtforms.validators import DataRequired,Length,Email,EqualTo,ValidationError
+from wtforms.validators import DataRequired,Length,Email,EqualTo,ValidationError,Optional
 from durango.models import User,Task    
 class RegistrationForm(FlaskForm):
 	username=StringField('Username',validators=[DataRequired(),Length(min=2,max=20)])#field should not be empty and length should be between 2 and 20
@@ -75,12 +75,16 @@ class LoginForm(FlaskForm):
 
 class TaskForm(FlaskForm):
 	title=StringField('Title',validators=[DataRequired()])
-	details=TextAreaField('Task-details',validators=[DataRequired()])
+	details=TextAreaField('Task-details')
 	date=DateField('Date',validators=[DataRequired()],format='%Y-%m-%d')
-	starttime=TimeField('Start Time',validators=[DataRequired()])
-	endtime=TimeField('End Time',validators=[DataRequired()])
-	status=StringField('Status',validators=[DataRequired()])
-	submit=SubmitField('Create')
+	starttime=TimeField('Start Time',validators=[Optional()])
+	endtime=TimeField('End Time',validators=[Optional()])
+	remindtime=TimeField('Remind me at:',validators=[Optional()])#remindtime
+	status=SelectField(
+        'Status',
+        choices=[('To-do', 'To-do'), ('Running', 'Running'), ('Completed', 'Completed'),('Failed','Failed')]
+    )
+	submit=SubmitField('Submit')
 
 
 class SearchForm(FlaskForm):

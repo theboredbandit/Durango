@@ -5,9 +5,9 @@
     <article class="media content-section">
       <div class="media-body">
         <div class="article-metadata">
-          <p class="mr-4 ">{{ task.date }}  | {{ task.starttime }}--{{task.endtime}}
-          <small class="text-black ml-3"> {{task.status}} 
-          </small></p>
+          <p class="mr-4 ">{{ task.date }}  | {{ task.starttime }}--{{task.endtime}}  |
+          {{task.status}} 
+          </p>
           <div>
             <a class="btn btn-secondary btn-sm m-1" href="{{url_for('update_task',task_id=task.id)}}"> Update</a>
             <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal"> Delete </button>

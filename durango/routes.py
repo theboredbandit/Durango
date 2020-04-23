@@ -1,4 +1,4 @@
-from flask import render_template, url_for, flash, redirect,request,abort
+from flask import render_template, url_for, flash, redirect,request,abort,jsonify
 from durango import app,db,bcrypt,celery #using bcrypt to has the passwords in user database
 from durango.models import User, Task
 from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm
@@ -6,7 +6,7 @@ from flask_login import login_user,current_user,logout_user,login_required
 from sqlalchemy.orm.exc import NoResultFound
 from twilio.rest import Client
 from datetime import datetime, timedelta
-
+from random import sample
 
 #everything here that begins with @ is a decorator
 @app.route("/")
@@ -98,14 +98,14 @@ def update_account():
 def new_task():
     form=TaskForm()
     if form.validate_on_submit():
-        task1=Task(title=form.title.data,date=form.date.data,starttime=form.starttime.data, endtime=form.endtime.data,details=form.details.data,status=form.status.data,user_id=current_user.id)
+        task1=Task(title=form.title.data,date=form.date.data,starttime=form.starttime.data, endtime=form.endtime.data,details=form.details.data,remindtime=form.remindtime.data,status=form.status.data,user_id=current_user.id)
         db.session.add(task1)
         db.session.commit()  
         #for sms reminder
-        dt=datetime.combine(form.date.data,form.starttime.data)
-        dt=dt-timedelta(hours=5,minutes=45)
-
-        #send_sms_reminder.apply_async(args=[task1.id],eta=dt) 
+        if form.remindtime.data!=None:
+            dt=datetime.combine(form.date.data,form.remindtime.data)
+            dt=dt-timedelta(hours=5,minutes=45)
+            #send_sms_reminder.apply_async(args=[task1.id],eta=dt) 
              
         flash('Task created!','success')
         return redirect(url_for('dashboard'))
@@ -179,18 +179,22 @@ def delete_task(task_id):
     flash('Task deleted!','success')
     return redirect(url_for('dashboard'))
 
-
-
-#checking celery with a different task
-@app.route('/process/<name>')
-def process(name):
-    task=Task.query.filter_by(title='test task8').first()
-    dt=datetime.combine(task.date,task.starttime)
-    dt=dt-timedelta(hours=5,minutes=30)
-
-    reverse.apply_async(args=[name],eta=dt)
-    return 'I sent an async request'
-
-@celery.task()
-def reverse(string):
-    return string[::-1]
+@app.route("/data")
+@login_required
+def data():
+    tasks=Task.query.filter_by(user_id=current_user.id)
+    to=ru=fa=co=0
+    for task in tasks:
+        if task.status=='To-do':
+            to=to+1
+        elif task.status=='Running':
+            ru=ru+1
+        elif task.status=='Completed':
+            co=co+1
+        elif task.status=='Failed':
+            fa=fa+1
+    values=[to,co,ru,fa]
+    return jsonify({'results' : values})
+@app.route("/chart")
+def chart():
+    return render_template('piechart.html')
