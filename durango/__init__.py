@@ -5,17 +5,22 @@ from flask_login import LoginManager
 #import flask_whooshalchemy as wa
 #from celery import Celery
 
-
-
+from authy.api import AuthyApiClient
+from durango import config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 #app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=True
+
+#configuring with authy to verify phone number
+app.config['AUTHY_API_KEY']='Cur6vF9dwUvuPGqDJhuaFoa7UivqYNzF'
+api=AuthyApiClient(app.config['AUTHY_API_KEY'])
 #configuring celery for sms purpose
 app.config['CELERY_BROKER_URL'] ='redis://127.0.0.1:6379/0'
 app.config['CELERY_BACKEND']='redis://127.0.0.1:6379/0' #database to add asynchronous task of sending sms
 #configuring whoosh for search
-app.config['WHOOSH_BASE']='whoosh'
+#app.config['WHOOSH_BASE']='whoosh'
+#setting api
 from celery import Celery
 
 def make_celery(app):

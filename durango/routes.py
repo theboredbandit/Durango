@@ -1,5 +1,7 @@
-from flask import render_template, url_for, flash, redirect,request,abort,jsonify
-from durango import app,db,bcrypt,celery #using bcrypt to has the passwords in user database
+from flask import render_template, url_for, flash, redirect,request,abort,jsonify,session
+import requests
+import json
+from durango import app,db,bcrypt,celery,api #using bcrypt to has the passwords in user database
 from durango.models import User, Task
 from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm
 from flask_login import login_user,current_user,logout_user,login_required
@@ -7,6 +9,10 @@ from sqlalchemy.orm.exc import NoResultFound
 from twilio.rest import Client
 from datetime import datetime, timedelta
 from random import sample
+
+twilio_account_sid = "AC103eefd5343f4ec238f7fb6c45092d0a"
+twilio_auth_token = "2de91c10b5ce9cd7e3efcec543470dec"
+twilio_number = "+14784002746"
 
 #everything here that begins with @ is a decorator
 @app.route("/")
@@ -38,6 +44,35 @@ def register():
         flash(f'Registration successful for {form.username.data}! Login now', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+@app.route("/phone_verification", methods=['GET', 'POST'])
+def phone_verification():
+    if request.method == "POST":
+        country_code = request.form.get("country_code")
+        phone_number = request.form.get("phone_number")
+        method = request.form.get("method")
+        session['country_code'] = country_code
+        session['phone_number'] = phone_number
+        api.phones.verification_start(phone_number, country_code, via=method)
+        return redirect(url_for("verify"))
+    return render_template("phone_verification.html")
+
+@app.route("/verify", methods=["GET", "POST"])
+def verify():
+    if request.method == "POST":
+        token = request.form.get("token")
+
+        phone_number = session.get("phone_number")
+        country_code = session.get("country_code")
+
+        verification = api.phones.verification_check(phone_number,
+                                                     country_code,
+                                                     token)
+
+        if verification.ok():
+            flash('Number verified')
+            return redirect(url_for('home'))
+    return render_template("verify.html")
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -104,8 +139,8 @@ def new_task():
         #for sms reminder
         if form.remindtime.data!=None:
             dt=datetime.combine(form.date.data,form.remindtime.data)
-            dt=dt-timedelta(hours=5,minutes=45)
-            #send_sms_reminder.apply_async(args=[task1.id],eta=dt) 
+            dt=dt-timedelta(hours=5,minutes=30)
+            send_sms_reminder.apply_async(args=[task1.id],eta=dt) 
              
         flash('Task created!','success')
         return redirect(url_for('dashboard'))
@@ -122,20 +157,26 @@ def send_sms_reminder(task1_id):
         return
     user=User.query.filter_by(id=task1.user_id).first()
 
-    body = "Hello "+user.username+"! " +task1.title+" is scheduled at 15 mins from now.\nTask details: "+task1.details+"\n--Regards, Durango"
+    body = "Hello "+user.username+"! This is a reminder about "+task1.title+". See details at Durango."
+    #twilio#client = Client(twilio_account_sid, twilio_auth_token)
 
-    twilio_account_sid = "AC103eefd5343f4ec238f7fb6c45092d0a"
-    twilio_auth_token = "2de91c10b5ce9cd7e3efcec543470dec"
-    twilio_number = "+14784002746"
+    to = user.mobileNum
+    #twilio#client.messages.create(to=user.mobileNum,from_=twilio_number,body=body)
 
-    client = Client(twilio_account_sid, twilio_auth_token)
+    # get request
+    URL = 'https://www.sms4india.com/api/v1/sendCampaign'
+    def sendPostRequest(reqUrl, apiKey, secretKey, useType, phoneNo, senderId, textMessage):
+        req_params = {'apikey':'GHAV00PT4TX58WKEJPVQGESYMHB3JKSO',
+        'secret':'R73HSSKN8UJ1NYKL',
+        'usetype':'stage',
+        'phone': to,
+        'message':body,
+        'senderid':'SMSIND'
+          }
+        return requests.post(reqUrl, req_params)
 
-
-    #to = user.mobileNum
-    client.messages.create(to=user.mobileNum,from_=twilio_number,body=body)
-
-
-
+    # get response
+    response = sendPostRequest(URL, 'provided-api-key', 'provided-secret', 'prod/stage', 'valid-to-mobile', 'active-sender-id', 'message-text' )
 #######################end
 @app.route("/task/ <int:task_id>")
 @login_required
