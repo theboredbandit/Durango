@@ -79,7 +79,7 @@ class TaskForm(FlaskForm):
 	date=DateField('Date',validators=[DataRequired()],format='%Y-%m-%d')
 	starttime=TimeField('Start Time',validators=[Optional()])
 	endtime=TimeField('End Time',validators=[Optional()])
-	remindtime=TimeField('Remind me at:',validators=[Optional()])#remindtime
+	remindtime=TimeField('Remind me at(Fill this if you want a sms reminder):',validators=[Optional()])#remindtime
 	status=SelectField(
         'Status',
         choices=[('To-do', 'To-do'), ('Running', 'Running'), ('Completed', 'Completed'),('Failed','Failed')]
@@ -90,3 +90,7 @@ class TaskForm(FlaskForm):
 class SearchForm(FlaskForm):
 	search=StringField('Enter the task-title',validators=[DataRequired()])
 	submit=SubmitField('Search')
+
+class SelectDate(FlaskForm):
+	date=DateField('Date',validators=[DataRequired()],format='%Y-%m-%d')
+	submit=SubmitField('GO')

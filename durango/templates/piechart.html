@@ -1,36 +1,55 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
-    <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="  crossorigin="anonymous"></script>
-  </head>
-  <body>
-  	<div class="ct-chart ct-perfect-fourth"></div>
+<!-- Styles -->
+<style>
+#chartdiv {
+  width: 100%;
+  height: 500px;
+}
 
-  <script>
+</style>
 
-  	var getdata=$.get('/data');
-  	getdata.done(function(results){
-		var data = {
-	  			// A labels array that can contain any sort of values
-			  labels: ['To-do', 'Completed', 'Running', 'Failed'],
-			  // Our series array that contains series objects or in this case series data arrays
-			  series: [
-			    results.results
-			  ]
-		};
-		var options={
-			width:800,
-			height:600
-		}
+<!-- Resources -->
+<script src="https://www.amcharts.com/lib/4/core.js"></script>
+<script src="https://www.amcharts.com/lib/4/charts.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+{% block javascript %}
+<!-- Chart code -->
+<script>
+am4core.ready(function() {
 
-		// Create a new line chart object where as first parameter we pass in a selector
-		// that is resolving to our chart container element. The Second parameter
-		// is the actual data object.
-		var lineChart=new Chartist.Line('.ct-chart', data,options);
-});
-  </script>
+// Themes begin
+am4core.useTheme(am4themes_animated);
+// Themes end
 
-    </body>
-</html>
+var chart = am4core.create("chartdiv", am4charts.PieChart3D);
+chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+chart.legend = new am4charts.Legend();
+values = JSON.parse({{ values | tojson }})
+chart.data = [
+  {
+    taskstatus: "To-do",
+    number: values[0] 
+  },
+  {
+    taskstatus: "Running",
+    number: values[1]
+  },
+  {
+    taskstatus: "Completed",
+    number: values[2]
+  },
+  {
+    taskstatus: "Failed",
+    number: values[3]
+  }
+];
+
+var series = chart.series.push(new am4charts.PieSeries3D());
+series.dataFields.value = "number";
+series.dataFields.category = "taskstatus";
+
+}); // end am4core.ready()
+</script>
+{%endblock%}
+<!-- HTML -->
+<div id="chartdiv"></div>

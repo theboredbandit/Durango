@@ -4,7 +4,7 @@
 <h1> Tasks </h1>
   {% for task in tasks %}
   {%if current_user.id==task.user_id%} 
-  {%if form.search.data==task.title %}
+  {%if form1.search.data==task.title %}
   
     <article class="media content-section">
       <div class="media-body">

@@ -3,13 +3,15 @@ import requests
 import json
 from durango import app,db,bcrypt,celery,api #using bcrypt to has the passwords in user database
 from durango.models import User, Task
-from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm
+from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm,SelectDate
 from flask_login import login_user,current_user,logout_user,login_required
 from sqlalchemy.orm.exc import NoResultFound
 from twilio.rest import Client
 from datetime import datetime, timedelta
 from random import sample
-
+import urllib.request
+import urllib.parse
+ 
 twilio_account_sid = "AC103eefd5343f4ec238f7fb6c45092d0a"
 twilio_auth_token = "2de91c10b5ce9cd7e3efcec543470dec"
 twilio_number = "+14784002746"
@@ -25,10 +27,13 @@ def home():
 @login_required
 def dashboard():
     tasks=Task.query.all()
-    form=SearchForm()
-    if form.validate_on_submit():
-        return render_template('search_task.html', title='Searched Task', tasks=tasks,form=form)
-    return render_template('dashboard.html', title='Dashboard', tasks=tasks,form=form)
+    form1=SearchForm()
+    form2=SelectDate()
+    if form1.validate_on_submit():
+        return render_template('search_task.html', title='Searched Task', tasks=tasks,form1=form1)
+    if form2.validate_on_submit():
+        return redirect(url_for('piechart',task_date=form2.date.data))
+    return render_template('dashboard.html', title='Dashboard', tasks=tasks,form1=form1,form2=form2)
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -85,7 +90,7 @@ def login():
         if user and bcrypt.check_password_hash(user.password,form.password.data):
             login_user(user, remember=form.remember.data)
             next_page=request.args.get('next')#looks for queries in request; args is a dictionary; we use get and not directly use 'next' as key to return the value because key might be empty leading to an error. get, in that case would fetch a none
-            flash('Greetings '+form.username.data+'!')
+            flash('Greetings '+form.username.data+'!','success')
             return redirect(url_for('dashboard'))
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
@@ -94,6 +99,7 @@ def login():
 @app.route("/logout")
 def logout():
     logout_user()
+    flash('You have logged out  !','success')
     return redirect(url_for('home'))
 
 @app.route("/account")
@@ -162,21 +168,16 @@ def send_sms_reminder(task1_id):
 
     to = user.mobileNum
     #twilio#client.messages.create(to=user.mobileNum,from_=twilio_number,body=body)
+    def sendSMS(apikey, numbers, message):
+        data =  urllib.parse.urlencode({'apikey': apikey, 'numbers': numbers,
+            'message' : message})
+        data = data.encode('utf-8')
+        request = urllib.request.Request("https://api.textlocal.in/send/?")
+        f = urllib.request.urlopen(request, data)
+        fr = f.read()
+        return(fr)
 
-    # get request
-    URL = 'https://www.sms4india.com/api/v1/sendCampaign'
-    def sendPostRequest(reqUrl, apiKey, secretKey, useType, phoneNo, senderId, textMessage):
-        req_params = {'apikey':'GHAV00PT4TX58WKEJPVQGESYMHB3JKSO',
-        'secret':'R73HSSKN8UJ1NYKL',
-        'usetype':'stage',
-        'phone': to,
-        'message':body,
-        'senderid':'SMSIND'
-          }
-        return requests.post(reqUrl, req_params)
-
-    # get response
-    response = sendPostRequest(URL, 'provided-api-key', 'provided-secret', 'prod/stage', 'valid-to-mobile', 'active-sender-id', 'message-text' )
+    resp =  sendSMS('ujY6cl2oAUo-A7iyIcdzpXeIFQwsPzEzon8hBbGmzy', to,body)
 #######################end
 @app.route("/task/ <int:task_id>")
 @login_required
@@ -236,6 +237,27 @@ def data():
             fa=fa+1
     values=[to,co,ru,fa]
     return jsonify({'results' : values})
-@app.route("/chart")
-def chart():
-    return render_template('piechart.html')
+@app.route("/linechart")
+@login_required
+def linechart():
+    return render_template('linechart.html')
+
+@app.route("/piechart/<task_date>")
+@login_required
+def piechart(task_date):
+    tasks=Task.query.filter_by(user_id=current_user.id)
+    to=ru=fa=co=0
+    task_date=datetime.strptime(task_date,"%Y-%m-%d").date()
+    for task in tasks:
+        if task.date==task_date:
+            if task.status=='To-do':
+                to=to+1
+            elif task.status=='Running':
+                ru=ru+1
+            elif task.status=='Completed':
+                co=co+1
+            elif task.status=='Failed':
+                fa=fa+1
+   
+    values=json.dumps( [to, co,ru,fa] )
+    return render_template('piechart.html',values=values)

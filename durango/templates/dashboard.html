@@ -36,30 +36,57 @@
 <div class="col-md-4" style="margin-top: 50px">
 <div class="content-section">
         <form method="POST" action="">
-            {{ form.hidden_tag() }}
+            {{ form1.hidden_tag() }}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Search</legend>
         <div class="form-group">
-                    {{ form.search.label(class="form-control-label") }}
+                    {{ form1.search.label(class="form-control-label") }}
 
-                    {% if form.search.errors %}
-                        {{ form.search(class="form-control form-control-lg is-invalid") }}
+                    {% if form1.search.errors %}
+                        {{ form1.search(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.search.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.search(class="form-control form-control-lg") }}
+                        {{ form1.search(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
                  <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
+                {{ form1.submit(class="btn btn-outline-info") }}
             </div>
               </fieldset>
             </form>
           </div>
-          <a class="article-title" href="{{url_for('chart')}}" ><button type="button" class="btn btn-primary btn-lg btn-block">Analyse Activity</button></a>
+          <div class="article-title" ><button type="button" class="btn btn-primary btn-lg btn-block"  data-toggle="collapse" data-target="#collapse1">Analyse Activity</button>
+            <div class="collapse" id="collapse1"> 
+              <button type="button" class="btn btn-secondary btn-lg btn-block" data-toggle="collapse" data-target="#collapse2">View Pie chart for daily stats</button>
+           <form id="collapse2" method="POST" action="">
+            {{ form2.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Select Date</legend>
+        <div class="form-group">
+                   
+
+                    {% if form2.date.errors %}
+                        {{ form2.date(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.search.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form2.date(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                 <div class="form-group">
+                {{ form2.submit(class="btn btn-outline-info") }}
+            </div>
+              </fieldset>
+            </form>
+              <a href="/linechart">  <button type="button" class="btn btn-secondary btn-lg btn-block">View graph for overall stats</button>
+            
         </div>
 
 {% endblock content%}
