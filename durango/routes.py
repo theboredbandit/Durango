@@ -1,9 +1,9 @@
 from flask import render_template, url_for, flash, redirect,request,abort,jsonify,session
 import requests
 import json
-from durango import app,db,bcrypt,celery,api #using bcrypt to has the passwords in user database
+from durango import app,db,bcrypt,celery,api,mail #using bcrypt to has the passwords in user database
 from durango.models import User, Task
-from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm,SelectDate
+from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm,SelectDate,ResetPasswordForm, InitiateResetForm
 from flask_login import login_user,current_user,logout_user,login_required
 from sqlalchemy.orm.exc import NoResultFound
 from twilio.rest import Client
@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from random import sample
 import urllib.request
 import urllib.parse
- 
+from flask_mail import Message
 twilio_account_sid = "AC103eefd5343f4ec238f7fb6c45092d0a"
 twilio_auth_token = "2de91c10b5ce9cd7e3efcec543470dec"
 twilio_number = "+14784002746"
@@ -119,7 +119,6 @@ def update_account():
         current_user.email=form.email.data
         current_user.instituteId=form.instituteId.data
         current_user.mobileNum=form.mobileNum.data
-        current_user.password=form.password.data 
         #db.session.add(user)
         db.session.commit()
         flash(f'Account updated successfully', 'success') #success is bootstrap class for the alert
@@ -129,7 +128,6 @@ def update_account():
         form.email.data=current_user.email
         form.mobileNum.data=current_user.mobileNum
         form.instituteId.data=current_user.instituteId
-        form.password.data=current_user.password
     image_file=url_for('static',filename='profile_pics/' + current_user.image_file)
     return render_template('update_account.html',title='Update Account',image_file=image_file,form=form,legend='Update credentials')
 
@@ -218,7 +216,7 @@ def delete_task(task_id):
         abort(403)
     db.session.delete(task)
     db.session.commit()
-    flash('Task deleted!','success')
+    flash('Task deleted!','warning')
     return redirect(url_for('dashboard'))
 
 @app.route("/data")
@@ -261,3 +259,38 @@ def piechart(task_date):
    
     values=json.dumps( [to, co,ru,fa] )
     return render_template('piechart.html',values=values)
+
+def send_reset_email(user):
+    token=user.get_reset_token()
+    msg=Message('Password Reset Request',sender='durangoadmn@gmail.com',recipients=[user.email])
+    str="Hello "+user.username+", "
+    msg.body=f'''Hello {user.username}! To reset your password, visit the following link: 
+{url_for('reset_token',token=token,_external=True)}
+If you did not request this, please ignore the mail.
+'''
+    mail.send(msg)
+@app.route("/reset_password",methods=['GET', 'POST'])
+def reset_initiate():
+    form=InitiateResetForm()
+    if form.validate_on_submit():
+        user=User.query.filter_by(email=form.email.data).first()
+        send_reset_email(user)
+        flash('An email has been sent with instructions to reset your password','info')
+        return redirect(url_for('login'))
+    return render_template('reset_initiate.html',title='Reset Password',form=form)
+
+
+@app.route("/reset_password/<token>",methods=['GET', 'POST'])
+def reset_token(token):
+    user=User.verify_reset_token(token)
+    if user is None:
+        flash('That is an invalid or expired token.','warning')
+        return redirect(url_for(reset_initiate))
+    form=ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password=bcrypt.generate_password_hash(form.password.data).decode('utf-8') #returns hashed password, decode converts it from byte to string
+        user.password=hashed_password
+        db.session.commit()
+        flash(f'Password reset successful for {user.username}! Login now', 'success')
+        return redirect(url_for('home'))
+    return render_template('reset_token.html',title='Reset Password',form=form)

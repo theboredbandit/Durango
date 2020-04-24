@@ -40,7 +40,6 @@ class UpdateAccountForm(FlaskForm):
 	email=StringField('Email',validators=[DataRequired(),Email()])
 	instituteId=StringField('Institute Id', validators=[DataRequired()])
 	mobileNum=StringField('Mobile Number with country code',validators=[DataRequired(), Length(min=10,max=13,message="Mobile Number must be 10 digits long.")]) 
-	password=PasswordField('Password', validators=[DataRequired(),Length(max=50)]) 
 	submit=SubmitField("Update")
 
 	def validate_username(self, username):
@@ -94,3 +93,17 @@ class SearchForm(FlaskForm):
 class SelectDate(FlaskForm):
 	date=DateField('Date',validators=[DataRequired()],format='%Y-%m-%d')
 	submit=SubmitField('GO')
+
+class InitiateResetForm(FlaskForm):
+	email=StringField('Email',validators=[DataRequired(),Email()])
+	submit=SubmitField('Initiate Password Reset')
+	def validate_email(self, email):
+		#if(email.data!=current_user.email):
+			user=User.query.filter_by(email=email.data).first()
+			if user is None:
+				raise ValidationError('No account associated with given email.')
+
+class ResetPasswordForm(FlaskForm):
+	password=PasswordField('Password', validators=[DataRequired(),Length(max=50)]) 
+	confirmpassword=PasswordField('Confirm Password',validators=[DataRequired(), EqualTo('password')])
+	submit=SubmitField("Reset Password")

@@ -9,10 +9,18 @@
  			<p class="text-secondary">{{current_user.instituteId}}</p>
  			<p class="text-secondary">{{current_user.mobileNum}}</p>
  		</div>
+ 	<div style="text-align: center;">
  		<div>
             <a class="btn btn-secondary btn-sm m-1" href="{{url_for('update_account')}}"> Update credentials</a>
-            <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal"> Delete Account</button>
-          </div>
+        </div>
+        <div>
+            <a class="btn btn-secondary btn-sm m-1" href="{{url_for('reset_initiate')}}"> Reset Password</a>
+        </div>
+        <div>
+            <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal" > Delete Account</button>
+        </div>
+    </div>
  	</div>
  </div>
+
 {% endblock %}

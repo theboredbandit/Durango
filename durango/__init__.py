@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_mail import Mail
 #import flask_whooshalchemy as wa
 #from celery import Celery
 
@@ -42,7 +43,10 @@ bcrypt =Bcrypt(app)
 login_manager=LoginManager(app)
 login_manager.login_view='login' #setting the route to login
 login_manager.login_message_category='info'
-
-
+app.config['MAIL_SERVER']='smtp.googlemail.com'
+app.config['MAIL_USE_TLS']=587
+app.config['MAIL_USERNAME']='durangoadmn@gmail.com'
+app.config['MAIL_PASSWORD']='durango123..'
+mail=Mail(app)
 
 from durango import routes
