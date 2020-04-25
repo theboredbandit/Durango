@@ -39,7 +39,7 @@ def dashboard():
                 tasks2.append(Task.query.filter_by(id=task.id).first())
         if len(arr)==0:
             flash('Task not found!','warning')
-            return redirect(url_for(dashboard))
+            return redirect(url_for('dashboard'))
         else:
             return render_template('search_task.html', title='Searched Task', tasks2=tasks2)
     if form2.validate_on_submit():
@@ -141,6 +141,14 @@ def update_account():
     image_file=url_for('static',filename='profile_pics/' + current_user.image_file)
     return render_template('update_account.html',title='Update Account',image_file=image_file,form=form,legend='Update credentials')
 
+@app.route("/account/delete",methods=['GET', 'POST'])
+@login_required
+def delete_account():
+    user=User.query.filter_by(id=current_user.id).first()
+    db.session.delete(user)
+    db.session.commit()
+    flash('Account deleted','success')
+    return redirect(url_for('home'))
 
 @app.route("/task/new",methods=['GET', 'POST'])
 @login_required
