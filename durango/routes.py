@@ -9,6 +9,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from twilio.rest import Client
 from datetime import datetime, timedelta
 from random import sample
+from durango.search import KMPSearch
 import urllib.request
 import urllib.parse
 from flask_mail import Message
@@ -26,29 +27,24 @@ def home():
 @app.route("/dashboard", methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    tasks=Task.query.all()
+    tasks=Task.query.filter_by(user_id=current_user.id).all()
     form1=SearchForm()
     form2=SelectDate()
     if form1.validate_on_submit():
-        return render_template('search_task.html', title='Searched Task', tasks=tasks,form1=form1)
+        arr=[] 
+        tasks2=[]
+        for task in tasks:
+            if KMPSearch(form1.search.data,task.title):
+                arr.append(task.id)
+                tasks2.append(Task.query.filter_by(id=task.id).first())
+        if len(arr)==0:
+            flash('Task not found!','warning')
+            return redirect(url_for(dashboard))
+        else:
+            return render_template('search_task.html', title='Searched Task', tasks2=tasks2)
     if form2.validate_on_submit():
         return redirect(url_for('piechart',task_date=form2.date.data))
     return render_template('dashboard.html', title='Dashboard', tasks=tasks,form1=form1,form2=form2)
-
-
-@app.route("/register", methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard')) #redirects user to dashboard if already logged in; function name is passed in url_for
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        hashed_password=bcrypt.generate_password_hash(form.password.data).decode('utf-8') #returns hashed password, decode converts it from byte to string
-        user=User(username=form.username.data,email=form.email.data, instituteId=form.instituteId.data,mobileNum=form.mobileNum.data,password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash(f'Registration successful for {form.username.data}! Login now', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
 
 @app.route("/phone_verification", methods=['GET', 'POST'])
 def phone_verification():
@@ -79,6 +75,20 @@ def verify():
             return redirect(url_for('home'))
     return render_template("verify.html")
 
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard')) #redirects user to dashboard if already logged in; function name is passed in url_for
+    form = RegistrationForm()
+    if form.validate_on_submit():
+
+        hashed_password=bcrypt.generate_password_hash(form.password.data).decode('utf-8') #returns hashed password, decode converts it from byte to string
+        user=User(username=form.username.data,email=form.email.data, instituteId=form.instituteId.data,mobileNum=form.mobileNum.data,password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash(f'Registration successful for {form.username.data}! Login now', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():

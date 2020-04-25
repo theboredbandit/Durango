@@ -1,11 +1,8 @@
 
 {% extends "layout.html"%}
 {% block content %}
-<h1> Tasks </h1>
-  {% for task in tasks %}
-  {%if current_user.id==task.user_id%} 
-  {%if form1.search.data==task.title %}
-  
+<h1> Tasks found:</h1>
+  {% for task in tasks2 %}
     <article class="media content-section">
       <div class="media-body">
         <div class="article-metadata">
@@ -17,8 +14,6 @@
         <p class="article-content">{{ task.details }}</p>
       </div>
     </article>
-    {%endif%}
-  {%endif%}
   {% endfor %}
   
 {% endblock content%}
