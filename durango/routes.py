@@ -3,13 +3,14 @@ import requests
 import json
 from durango import app,db,bcrypt,celery,api,mail #using bcrypt to has the passwords in user database
 from durango.models import User, Task
-from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm,SelectDate,ResetPasswordForm, InitiateResetForm
+from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm,SelectDate,ResetPasswordForm, InitiateResetForm, app_passwordForm
 from flask_login import login_user,current_user,logout_user,login_required
 from sqlalchemy.orm.exc import NoResultFound
 from twilio.rest import Client
 from datetime import datetime, timedelta
 from random import sample
 from durango.search import KMPSearch
+from durango.mail import readmail
 import urllib.request
 import urllib.parse
 from flask_mail import Message
@@ -34,14 +35,17 @@ def dashboard():
         arr=[] 
         tasks2=[]
         for task in tasks:
-            if KMPSearch(form1.search.data,task.title):
+            a=form1.search.data
+            b=task.title
+            if KMPSearch(a.casefold(),b.casefold()):
                 arr.append(task.id)
                 tasks2.append(Task.query.filter_by(id=task.id).first())
         if len(arr)==0:
             flash('Task not found!','warning')
             return redirect(url_for('dashboard'))
         else:
-            return render_template('search_task.html', title='Searched Task', tasks2=tasks2)
+            data=json.dumps(form1.search.data)
+            return render_template('search_task.html', title='Searched Task', tasks2=tasks2,data=data)
     if form2.validate_on_submit():
         return redirect(url_for('piechart',task_date=form2.date.data))
     return render_template('dashboard.html', title='Dashboard', tasks=tasks,form1=form1,form2=form2)
@@ -83,7 +87,9 @@ def register():
     if form.validate_on_submit():
 
         hashed_password=bcrypt.generate_password_hash(form.password.data).decode('utf-8') #returns hashed password, decode converts it from byte to string
+        #if app_password field is not-empty
         user=User(username=form.username.data,email=form.email.data, instituteId=form.instituteId.data,mobileNum=form.mobileNum.data,password=hashed_password)
+
         db.session.add(user)
         db.session.commit()
         flash(f'Registration successful for {form.username.data}! Login now', 'success')
@@ -129,6 +135,7 @@ def update_account():
         current_user.email=form.email.data
         current_user.instituteId=form.instituteId.data
         current_user.mobileNum=form.mobileNum.data
+        current_user.app_password=form.app_password.data
         #db.session.add(user)
         db.session.commit()
         flash(f'Account updated successfully', 'success') #success is bootstrap class for the alert
@@ -138,6 +145,7 @@ def update_account():
         form.email.data=current_user.email
         form.mobileNum.data=current_user.mobileNum
         form.instituteId.data=current_user.instituteId
+        form.app_password.data=current_user.app_password
     image_file=url_for('static',filename='profile_pics/' + current_user.image_file)
     return render_template('update_account.html',title='Update Account',image_file=image_file,form=form,legend='Update credentials')
 
@@ -312,3 +320,20 @@ def reset_token(token):
         flash(f'Password reset successful for {user.username}! Login now', 'success')
         return redirect(url_for('home'))
     return render_template('reset_token.html',title='Reset Password',form=form)
+
+
+@app.route("/mail_tasks",methods=['GET', 'POST'])
+@login_required
+def mail_tasks():
+    if current_user.app_password==None:
+        form=app_passwordForm()
+        if form.validate_on_submit():
+            current_user.app_password=form.app_password.data
+            db.session.commit()
+            flash('App password added successfully','success')
+            return render_template('mail_tasks.html')
+        return render_template('app_password.html',form=form)
+    else:
+        msgs=readmail(current_user.email,current_user.app_password)
+        return render_template('mail_tasks.html',msgs=msgs)
+

@@ -1,6 +1,7 @@
 
 {% extends "layout.html"%}
 {% block content %}
+
 <h1> Tasks found:</h1>
   {% for task in tasks2 %}
     <article class="media content-section">
@@ -10,10 +11,10 @@
           <small class="text-black ml-3"> {{task.status}} 
           </small></p>
         </div>
-        <h2><a class="article-title" href="{{url_for('task',task_id=task.id)}}">{{ task.title }}</a></h2>
+        <h2><a class="article-title" id="title" href="{{url_for('task',task_id=task.id)}}">{{ task.title }}</a></h2>
         <p class="article-content">{{ task.details }}</p>
       </div>
     </article>
   {% endfor %}
-  
+
 {% endblock content%}

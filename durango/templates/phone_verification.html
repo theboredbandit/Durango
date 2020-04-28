@@ -1,5 +1,11 @@
-{%extends "layout.html" %}
-{% block content %}
+<html>
+  <head>
+        <link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/authy-form-helpers/2.3/form.authy.min.css" data-turbolinks-track="reload" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/authy-form-helpers/2.3/form.authy.min.js" data-turbolinks-track="reload"></script>
+  
+  </head>
+
+  <body>
         <h1>Verify your phone number</h1>
         <form action="/phone_verification" accept-charset="UTF-8" method="post">
           <div>
@@ -19,4 +25,5 @@
           </div>
           <button name="button" type="submit">Verify</button>
         </form>
-{%endblock%}
+  </body>
+</html>

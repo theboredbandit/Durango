@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+<!--<script>
+jQuery('body').live('click', function(event) {
+    $(this).next().is(":visible") ? $(this).text("Show mail body") : $(this).text("Hide mail body");
+    $(this).next().toggle();
+});-->
+</script>
+<h1> Tasks waiting to be added</h1>
+	{%for msg in msgs%}
+	<article class="media content-section">
+      <div class="media-body">
+        <div class="article-metadata">
+          <p class="mr-4 ">{{msg[0]}}  
+          </p>
+          <span>
+            <a class="btn btn-outline-info" href="#"> Update</a>
+            <button type="button" class="btn btn-outline-info">Remove from queue. </button>
+          </span>
+        </div>
+        <h2 class="article-title" >{{msg[1]}}</h2>
+        <div>
+       <!-- <div data-toggle="collapse" data-target="#collapse1" class=body> B</div>-->	
+        <p class="article-content" id=collapse1>{{ msg[2] }}</p>
+      	</div>
+      </div>
+    </article>
+    {%endfor%}
+
+{%endblock%}

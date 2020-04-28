@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded',function(event){
         <h3>Infobar</h3>
         <p class='text-bold'>Latest Stats:
             <ol class="list-group">
-              <li class="list-group-item list-group-item-warning">{{db.session.query(User).count()}}+ users have already registered.</li>
+              <li class="list-group-item list-group-item-warning">{{db.session.query(User).count()}} users have already registered.</li>
               <li class="list-group-item list-group-item-success">A total of {{db.session.query(Task).count()}} tasks have been scheduled.</li>
             </ol>
            

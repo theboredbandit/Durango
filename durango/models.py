@@ -19,6 +19,7 @@ class User(db.Model, UserMixin):
     mobileNum=db.Column(db.String(10), unique=True, nullable=False)
     image_file=db.Column(db.String(20),nullable=False,default='user.png')
     password=db.Column(db.String(50),nullable=False)
+    app_password=db.Column(db.String(50),nullable=True)
     tasks=db.relationship('Task',backref='author',lazy=True)
  
     def get_reset_token(self,expires_sec=1800):
@@ -51,5 +52,10 @@ class Task(db.Model):
     status=db.Column(db.String(20),nullable=False)
     user_id=db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
 
+
     def __repr__(self):
         return f"Task('{self.title}','{self.date}','{self.starttime}','{self.endtime}',{self.status}')"
+
+class m_id(db.model):
+    id=db.Column(db.Integer,primary_key=True)
+    message_id=db.Column(db.Text,nullable=True)

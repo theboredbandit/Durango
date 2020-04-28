@@ -1,6 +1,7 @@
 
 {% extends "layout.html"%}
 {% block content %}
+
 <h1> Tasks </h1>
   {% for task in tasks %}
   {%if current_user.id==task.user_id%}   
@@ -62,7 +63,7 @@
           <div class="article-title" ><button type="button" class="btn btn-primary btn-lg btn-block"  data-toggle="collapse" data-target="#collapse1">Analyse Activity</button>
             <div class="collapse" id="collapse1"> 
               <button type="button" class="btn btn-secondary btn-lg btn-block" data-toggle="collapse" data-target="#collapse2" id="parent1">View Pie chart for daily stats</button>
-           <form id="collapse2" data-parent="#parent1" method="POST" action="">
+           <form class="collapse"id="collapse2" data-parent="#parent1" method="POST" action="">
             {{ form2.hidden_tag() }}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Select Date</legend>
@@ -85,8 +86,12 @@
             </span>
               </fieldset>
             </form>
-              <a href="/linechart" style="text-decoration: none;">  <button type="button" class="btn btn-secondary btn-lg btn-block">View graph for overall stats</button>
+              <a href="/linechart" style="text-decoration: none;">  <button type="button" class="btn btn-secondary btn-lg btn-block">View graph for overall stats</button></a>
             
         </div>
+      </div>
 
+      <br>
+        <div class="article-title" ><a href="{{url_for('mail_tasks')}}" style="text-decoration: none;"><button type="button" class="btn btn-primary btn-lg btn-block">Review Tasks fetched from mail</button></a>
+</div>
 {% endblock content%}

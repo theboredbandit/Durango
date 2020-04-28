@@ -11,6 +11,7 @@ class RegistrationForm(FlaskForm):
 	instituteId=StringField('Institute Id', validators=[DataRequired()])
 	password=PasswordField('Password', validators=[DataRequired(),Length(max=50)]) 
 	confirm_password=PasswordField('Confirm Password',validators=[DataRequired(), EqualTo('password')])
+	app_password=PasswordField('App Password',validators=[Optional()])
 	submit=SubmitField("Register")
 
 	def validate_username(self, username):
@@ -107,3 +108,7 @@ class ResetPasswordForm(FlaskForm):
 	password=PasswordField('Password', validators=[DataRequired(),Length(max=50)]) 
 	confirmpassword=PasswordField('Confirm Password',validators=[DataRequired(), EqualTo('password')])
 	submit=SubmitField("Reset Password")
+
+class app_passwordForm(FlaskForm):
+	app_password=PasswordField('App Password', validators=[DataRequired(),Length(max=50)]) 
+	submit=SubmitField("Submit")

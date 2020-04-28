@@ -1,5 +1,7 @@
-# Python program for KMP Algorithm 
-def KMPSearch(pat, txt): 
+#String matching code for search feature
+def KMPSearch(pat, txt):
+    pat.casefold()
+    txt.casefold() 
     M = len(pat) 
     N = len(txt) 
   
