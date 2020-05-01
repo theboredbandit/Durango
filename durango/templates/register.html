@@ -86,6 +86,7 @@
                 </div>
                  <div class="form-group">
                     {{ form.app_password.label(class="form-control-label") }}
+                    &nbsp; &nbsp; &nbsp;<a href="{{url_for('learn_more')}}"><span>Learn more</span></a>
                     {% if form.app_password.errors %}
                         {{ form.app_password(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">

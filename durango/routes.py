@@ -2,8 +2,8 @@ from flask import render_template, url_for, flash, redirect,request,abort,jsonif
 import requests
 import json
 from durango import app,db,bcrypt,celery,api,mail #using bcrypt to has the passwords in user database
-from durango.models import User, Task
-from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm,SelectDate,ResetPasswordForm, InitiateResetForm, app_passwordForm
+from durango.models import User, Task,m_ids
+from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm,SelectDate,ResetPasswordForm, InitiateResetForm, app_passwordForm,MessageForm
 from flask_login import login_user,current_user,logout_user,login_required
 from sqlalchemy.orm.exc import NoResultFound
 from twilio.rest import Client
@@ -73,10 +73,14 @@ def verify():
         verification = api.phones.verification_check(phone_number,
                                                      country_code,
                                                      token)
-
+        user=User.query.filter_by(mobileNum=phone_number).first()
         if verification.ok():
-            flash('Number verified')
-            return redirect(url_for('home'))
+
+            flash('Registration successful for '+user.username+' ! Login now.','success')
+            return redirect(url_for('login'))
+        else:
+            db.session.delete(user)
+            db.session.commit()
     return render_template("verify.html")
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -92,8 +96,8 @@ def register():
 
         db.session.add(user)
         db.session.commit()
-        flash(f'Registration successful for {form.username.data}! Login now', 'success')
-        return redirect(url_for('login'))
+        flash(f'You are almost there.', 'success')
+        return render_template("phone_verification.html",pn=user.mobileNum)
     return render_template('register.html', title='Register', form=form)
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -153,6 +157,9 @@ def update_account():
 @login_required
 def delete_account():
     user=User.query.filter_by(id=current_user.id).first()
+    tasks=Task.query.filter_by(user_id=current_user.id).all()
+    for task in tasks:
+        db.session.delete(task)
     db.session.delete(user)
     db.session.commit()
     flash('Account deleted','success')
@@ -190,7 +197,7 @@ def send_sms_reminder(task1_id):
     body = "Hello "+user.username+"! This is a reminder about "+task1.title+". See details at Durango."
     #twilio#client = Client(twilio_account_sid, twilio_auth_token)
 
-    to = user.mobileNum
+    to = "+91"+user.mobileNum
     #twilio#client.messages.create(to=user.mobileNum,from_=twilio_number,body=body)
     def sendSMS(apikey, numbers, message):
         data =  urllib.parse.urlencode({'apikey': apikey, 'numbers': numbers,
@@ -264,7 +271,18 @@ def data():
 @app.route("/linechart")
 @login_required
 def linechart():
-    return render_template('linechart.html')
+    tasks=Task.query.filter_by(user_id=current_user.id)
+    to=ru=fa=co=0
+    for task in tasks:
+        if task.status=='To-do':
+            to=to+1
+        elif task.status=='Running':
+            ru=ru+1
+        elif task.status=='Completed':
+            co=co+1
+        elif task.status=='Failed':
+            fa=fa+1
+    return render_template('linechart.html',to=to,ru=ru,co=co,fa=fa,total=to+ru+co+fa)
 
 @app.route("/piechart/<task_date>")
 @login_required
@@ -335,5 +353,58 @@ def mail_tasks():
         return render_template('app_password.html',form=form)
     else:
         msgs=readmail(current_user.email,current_user.app_password)
-        return render_template('mail_tasks.html',msgs=msgs)
+        temp=[]
+        for msg in msgs:
+            if Task.query.filter_by(message_id=msg[4]).first():
+                continue
+            elif m_ids.query.filter_by(removed_id=msg[4]).first():
+                continue
+            else:
+                temp.append(msg)
+        return render_template('mail_tasks.html',msgs=temp)
 
+
+@app.route("/mail_task_add/<message_id>/<subject>",methods=['GET', 'POST'])
+@login_required
+def mail_task_add(message_id,subject):
+    form=TaskForm()
+    t=message_id
+    if form.validate_on_submit():
+        task=Task(title=form.title.data,date=form.date.data,starttime=form.starttime.data, endtime=form.endtime.data,details=form.details.data,remindtime=form.remindtime.data,status=form.status.data,user_id=current_user.id,message_id=t)   
+        db.session.add(task)
+        db.session.commit()
+        flash('Task added!','success')
+        return redirect(url_for('task',task_id=task.id))
+    elif request.method=='GET':
+        form.details.data=subject #setting mail subject as taskdetails
+    return render_template('create_task.html',form=form)
+
+
+@app.route("/mail_task_remove/<message_id>",methods=['GET', 'POST'])
+@login_required
+def mail_task_remove(message_id):
+    obj=m_ids(removed_id=message_id)
+    db.session.add(obj)
+    db.session.commit()
+    flash(message_id+" removed")
+    response="remaining on this page"
+    return ((''),200, {'Content-Type': 'text/plain'})
+
+@app.route("/learn_more")
+def learn_more():
+    return render_template("howto-app_password.html")
+
+@app.route("/contact_us",methods=['GET', 'POST'])
+def contact_us():
+    form=MessageForm()
+    if current_user.is_authenticated:
+        form.email.data=current_user.email
+    if form.validate_on_submit():
+        msg=Message('Sent by Durango user',sender=form.email.data,recipients=['durangoadmn@gmail.com']) 
+        msg.body=f'''Sent from Durango contact us page:
+        {form.message.data}
+
+'''
+        mail.send(msg)
+        flash('Your message has been sent.','success')
+    return render_template("contact_us.html",form=form)

@@ -51,11 +51,14 @@ class Task(db.Model):
     details=db.Column(db.Text,nullable=True)
     status=db.Column(db.String(20),nullable=False)
     user_id=db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
-
+    message_id=db.Column(db.Text,nullable=True)
 
     def __repr__(self):
         return f"Task('{self.title}','{self.date}','{self.starttime}','{self.endtime}',{self.status}')"
 
-class m_id(db.model):
+class m_ids(db.Model):
     id=db.Column(db.Integer,primary_key=True)
-    message_id=db.Column(db.Text,nullable=True)
+    removed_id=db.Column(db.Text,nullable=True)
+
+    def __repr__(self):
+        return f"m_ids('{self.id}','{self.removed_id}')"

@@ -1,28 +1,39 @@
 {% extends "layout.html" %}
 {% block content %}
-<!--<script>
-jQuery('body').live('click', function(event) {
-    $(this).next().is(":visible") ? $(this).text("Show mail body") : $(this).text("Hide mail body");
-    $(this).next().toggle();
-});-->
+<head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+  $('.collapse1').click(function(event) {
+  	$(this).next().is(":visible") ? $(this).text("Show mail body") : $(this).text("Hide mail body");
+    $(this).next('.article-content').toggle('show');
+  });
+});
+
 </script>
+
+</script>
+</head>
 <h1> Tasks waiting to be added</h1>
 	{%for msg in msgs%}
 	<article class="media content-section">
       <div class="media-body">
         <div class="article-metadata">
-          <p class="mr-4 ">{{msg[0]}}  
+          <p class="mr-2 ">{{msg[0]}}  
+          </p>
+          <p class="mr-2 ">{{msg[1]}}  
           </p>
           <span>
-            <a class="btn btn-outline-info" href="#"> Update</a>
-            <button type="button" class="btn btn-outline-info">Remove from queue. </button>
+            <a class="btn btn-outline-info" href="{{url_for('mail_task_add',message_id=msg[4],subject=msg[2])}}"> Add to tasks</a>
+            <a class="btn btn-outline-info" href="{{url_for('mail_task_remove',message_id=msg[4])}}" >Remove from queue</a>
           </span>
         </div>
-        <h2 class="article-title" >{{msg[1]}}</h2>
+        <h2 class="article-title" >{{msg[2]}}</h2>
         <div>
        <!-- <div data-toggle="collapse" data-target="#collapse1" class=body> B</div>-->	
-        <p class="article-content" id=collapse1>{{ msg[2] }}</p>
-      	</div>
+       <button class="collapse1">Show mail body</button>
+        <p class="article-content" style="display: none;">{{ msg[3] }}</p>
+      	</div>	
       </div>
     </article>
     {%endfor%}

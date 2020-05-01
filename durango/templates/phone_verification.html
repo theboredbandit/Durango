@@ -1,20 +1,32 @@
-<html>
+{%extends "layout.html"%}
+{%block content%}
+
   <head>
         <link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/authy-form-helpers/2.3/form.authy.min.css" data-turbolinks-track="reload" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/authy-form-helpers/2.3/form.authy.min.js" data-turbolinks-track="reload"></script>
-  
+        <script>
+          function validateForm() {
+  var x = document.forms["verify"]["phone_number"].value;
+  var y= document.forms["verify"]["country_code"].value;
+  var z=document.forms["verify"]["method"].value;
+  if (x == ""|| y == "" || z == "") {
+    alert("All fields are mandatory!");
+    return false;
+  }
+}
+</script>
   </head>
 
   <body>
-        <h1>Verify your phone number</h1>
-        <form action="/phone_verification" accept-charset="UTF-8" method="post">
+        <h1>Please verify your phone number before logging in.</h1>
+        <form name="verify" action="{{url_for('phone_verification',user_id=id)}}" accept-charset="UTF-8" onsubmit="return validateForm()" method="post" required>
           <div>
             <label for="authy-countries">Country code:</label>
             <select name="country_code" id="authy-countries" data-show-as="number"></select>
           </div>
           <div>
             <label for="phone_number">Phone number:</label>
-            <input type="tel" name="phone_number" id="phone_number" />
+            <input type="tel" name="phone_number" id="phone_number" value="{{pn}}"/>
           </div>
             <div>
             <p>Verification method</p>
@@ -26,4 +38,4 @@
           <button name="button" type="submit">Verify</button>
         </form>
   </body>
-</html>
+{%endblock%}

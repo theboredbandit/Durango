@@ -1,7 +1,7 @@
 {%extends "layout.html" %}
 {% block content %}
 
-<h1>Welcome to Durango</h1>
+<u style="color: black; padding-top: 10px"><h1>Welcome to Durango</h1></u>
 <p id="demo"></p>
 
 <script >
@@ -62,10 +62,10 @@ document.addEventListener('DOMContentLoaded',function(event){
       </div>
         <div class="content-section" >
 
-            <p class='text-bold'>Related news:
-            <li class="list-group-item list-group-item-light">Random1</li>
-            <li class="list-group-item list-group-item-light"> Random2 </li>
-            <li class="list-group-item list-group-item-light">Random3</li>
+            <p class='text-bold'>Quick Links:
+            <a href="{{url_for('learn_more')}}"><li class="list-group-item list-group-item-light">Learn about App Passwords</li></a>
+            <li class="list-group-item list-group-item-light"> Learn about developer </li>
+            <li class="list-group-item list-group-item-light">Report Bug</li>
         </p>
       </div>
     </div>

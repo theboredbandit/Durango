@@ -1,13 +1,15 @@
 import imaplib
 import email
 from email.header import decode_header
+
 #uncomment these when downloading attacments
 from durango.search import KMPSearch
+from durango.models import Task,m_ids
 #import webbrowser
 #import os
 
 # creating a 2-d list to store messages
-arr=[[]]
+arr=[]
 def readmail(username, password):
 
     # create an IMAP4 class with SSL 
@@ -20,23 +22,22 @@ def readmail(username, password):
     N = 20
     # total number of emails
     messages = int(messages[0])
-    keywords=['test','viva','scheduled','quiz','assignment','exam','meeting','task','homework','contest']
-
+    keywords=['test','viva','scheduled','quiz','assignment','exam','meeting','task','homework','contest','round']
     for i in range(messages, messages-N, -1):
         # fetch the email message by ID
         res, msg = imap.fetch(str(i), "(RFC822)")
-        message_id=imap.fetch(num, '(BODY[HEADER.FIELDS (MESSAGE-ID)])')
-        hp = HeaderParser()
-        header_string = message_id[0][1]
-        header = hp.parsestr(header_string)
-        m_id= parseaddr(header['message-id'])[1]
+        #if current mail_id matcheswith some message_id already in the database
         for response in msg:
             if isinstance(response, tuple):
                 flag=0
                 # parse a bytes email into a message object
                 msg = email.message_from_bytes(response[1])
+                 #decode th message id
+                m_id=decode_header(msg["MESSAGE-ID"])[0][0]
                 # decode the email subject
                 subject = decode_header(msg["Subject"])[0][0]
+                #decode the date received
+                date=decode_header(msg["Date"])[0][0]
                 if isinstance(subject, bytes):
                     # if it's a bytes, decode to str
                     subject = subject.decode()
@@ -67,8 +68,8 @@ def readmail(username, password):
                                         flag=1
                                         break
                             if flag==1:
-                                arr.append(["From: "+ from_,"Subject: "+subject,"Mail Body:"+b,m_id])
-                                #print("="*100)
+                                arr.append(["From: "+ from_,"Received on:"+date,"Subject: "+subject,"Mail Body:"+b,m_id])
+                                #print("="*100) 
        
     imap.close()
     imap.logout()

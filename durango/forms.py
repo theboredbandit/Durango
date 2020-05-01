@@ -7,11 +7,11 @@ from durango.models import User,Task
 class RegistrationForm(FlaskForm):
 	username=StringField('Username',validators=[DataRequired(),Length(min=2,max=20)])#field should not be empty and length should be between 2 and 20
 	email=StringField('Email',validators=[DataRequired(),Email()])
-	mobileNum=StringField('Mobile Number with country code',validators=[DataRequired(), Length(min=10,max=13,message="Mobile Number must be 10 digits long.")]) 
+	mobileNum=StringField('Enter your 10 digit mobile number',validators=[DataRequired(), Length(min=10,max=13,message="Mobile Number must be 10 digits long.")]) 
 	instituteId=StringField('Institute Id', validators=[DataRequired()])
 	password=PasswordField('Password', validators=[DataRequired(),Length(max=50)]) 
 	confirm_password=PasswordField('Confirm Password',validators=[DataRequired(), EqualTo('password')])
-	app_password=PasswordField('App Password',validators=[Optional()])
+	app_password=PasswordField('App Password(You can leave this empty now.)',validators=[Optional()])
 	submit=SubmitField("Register")
 
 	def validate_username(self, username):
@@ -112,3 +112,9 @@ class ResetPasswordForm(FlaskForm):
 class app_passwordForm(FlaskForm):
 	app_password=PasswordField('App Password', validators=[DataRequired(),Length(max=50)]) 
 	submit=SubmitField("Submit")
+
+class MessageForm(FlaskForm):
+	email=StringField('Email',validators=[DataRequired(),Email()])
+	message=TextAreaField('Message/Bug-description')
+	submit=SubmitField("Send")
+
