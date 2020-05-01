@@ -36,14 +36,14 @@
           <div class="navbar-nav">
 	        <!-- Navbar Right Side -->
           {%if current_user.is_authenticated%}
-          <a class="nav-item nav-link" href="/task/new"><button type="button" class="btn btn-light"  style="border-radius: 0">Create Task</button></a>
-          <a class="nav-item nav-link" href="/logout"><button type="button" class="btn btn-light"  style="border-radius: 0">Logout</button></a>
-          <a class="nav-item nav-link" href="/account"><button type="button" class="btn btn-light"  style="border-radius: 0">Account</button></a>
+          <a class="nav-item nav-link" href="/task/new">Create Task</a>
+          <a class="nav-item nav-link" href="/logout">Logout</a>
+          <a class="nav-item nav-link" href="/account">Account</a>
           {%else%}
-	        <a class="nav-item nav-link" href="/login"><button type="button" class="btn btn-light"  style="border-radius: 0">Login</button></a>
-	        <a class="nav-item nav-link" href="/register"><button type="button" class="btn btn-light"  style="border-radius: 0">Register</button></a>
+	        <a class="nav-item nav-link" href="/login">Login</a>
+	        <a class="nav-item nav-link" href="/register">Register</a>
 	         {%endif%}
-           <a class="nav-item nav-link" href="/contact_us"><button type="button" class="btn btn-light"  style="border-radius: 0">Contact us</button></a>
+           <a class="nav-item nav-link" href="/contact_us">Contact us</a>
           </div>
 	      </div>
 	    </div>

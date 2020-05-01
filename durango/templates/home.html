@@ -1,7 +1,7 @@
 {%extends "layout.html" %}
 {% block content %}
 
-<u style="color: black; padding-top: 10px"><h1>Welcome to Durango</h1></u>
+<h1>Welcome to Durango</h1>
 <p id="demo"></p>
 
 <script >
@@ -63,9 +63,11 @@ document.addEventListener('DOMContentLoaded',function(event){
         <div class="content-section" >
 
             <p class='text-bold'>Quick Links:
-            <a href="{{url_for('learn_more')}}"><li class="list-group-item list-group-item-light">Learn about App Passwords</li></a>
-            <li class="list-group-item list-group-item-light"> Learn about developer </li>
-            <li class="list-group-item list-group-item-light">Report Bug</li>
+             <ol class="list-group">
+            <li class="list-group-item list-group-item-light"><a href="{{url_for('learn_more')}}">Learn about App Passwords</a></li>
+            <li class="list-group-item list-group-item-light"><a href="https://www.linkedin.com/in/suryansh-kumar-b30b29135"> Learn about developer</a> </li>
+            <li class="list-group-item list-group-item-light"><a href="{{url_for('contact_us')}}" >Report Bug</a></li>
+          </ol>
         </p>
       </div>
     </div>
