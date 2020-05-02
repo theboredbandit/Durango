@@ -1,17 +1,16 @@
 import imaplib
 import email
 from email.header import decode_header
-
-#uncomment these when downloading attacments
 from durango.search import KMPSearch
-from durango.models import Task,m_ids
+from durango.models import Task
+#uncomment these when downloading attacments
 #import webbrowser
 #import os
 
 # creating a 2-d list to store messages
-arr=[]
-def readmail(username, password):
 
+def readmail(username, password):
+    arr=[]
     # create an IMAP4 class with SSL 
     imap = imaplib.IMAP4_SSL("imap.gmail.com")
     # authenticate
@@ -19,9 +18,13 @@ def readmail(username, password):
 
     status, messages = imap.select("INBOX")
     # number of top emails to fetch
-    N = 20
+    
     # total number of emails
     messages = int(messages[0])
+    if messages<15:
+        N=messages
+    else:
+        N=15#checks top 15 mails matching with given keywords 
     keywords=['test','viva','scheduled','quiz','assignment','exam','meeting','task','homework','contest','round']
     for i in range(messages, messages-N, -1):
         # fetch the email message by ID
@@ -68,7 +71,7 @@ def readmail(username, password):
                                         flag=1
                                         break
                             if flag==1:
-                                arr.append(["From: "+ from_,"Received on:"+date,"Subject: "+subject,"Mail Body:"+b,m_id])
+                                arr.append(["From: "+ from_,"Received on:"+date,""+subject,""+b,m_id])
                                 #print("="*100) 
        
     imap.close()

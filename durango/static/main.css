@@ -49,7 +49,17 @@ span.st {
   from{color: white}
   to{color: black}
 }
-
+.collapse1:hover{
+  color: #C0C0C0;
+  animation-name: anime2;
+  animation-duration: 0.2s;
+  animation-fill-mode: forwards;
+}
+@keyframes anime2{
+  from{ text-decoration-line: none;}
+  to{text-underline-position:below;}
+}
+.line { border-bottom: 1px solid grey; position: absolute; top: 10px; width: 100%; z-index: -1; }
 .site-header .navbar-nav .nav-link.active {
   font-weight: 500;
 }

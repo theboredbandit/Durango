@@ -11,13 +11,26 @@ $(document).ready(function() {
 });
 
 </script>
+<script>
+/*$(document).ready(function() {
+	$('.removeButton').on('click',function(){
 
+		var message_id=$(this).attr('message_id');
+		req=$.ajax({
+			url:'/mail_task_remove/'+message_id,
+			type: 'POST',
+			data:{message_id:message_id}
+		});
+		$('#mail'+message_id).fadeOut(1000).fadeIn(1000);
+	});
+});*/
 </script>
 </head>
+<body>
 <h1> Tasks waiting to be added</h1>
 	{%for msg in msgs%}
 	<article class="media content-section">
-      <div class="media-body">
+      <div class="media-body" id="mail{{msg[4]}}">
         <div class="article-metadata">
           <p class="mr-2 ">{{msg[0]}}  
           </p>
@@ -25,17 +38,20 @@ $(document).ready(function() {
           </p>
           <span>
             <a class="btn btn-outline-info" href="{{url_for('mail_task_add',message_id=msg[4],subject=msg[2])}}"> Add to tasks</a>
-            <a class="btn btn-outline-info" href="{{url_for('mail_task_remove',message_id=msg[4])}}" >Remove from queue</a>
           </span>
         </div>
-        <h2 class="article-title" >{{msg[2]}}</h2>
+        <h2 class="article-title" >Subject: {{msg[2]}}</h2>
         <div>
        <!-- <div data-toggle="collapse" data-target="#collapse1" class=body> B</div>-->	
-       <button class="collapse1">Show mail body</button>
-        <p class="article-content" style="display: none;">{{ msg[3] }}</p>
+       <div class="collapse1" style="display: inline; cursor: pointer;"><u>Show mail body</u></div>
+
+        <p class="article-content" style="display: none;"> 
+        	
+        {{ msg[3] }}</p>	
+
       	</div>	
       </div>
     </article>
     {%endfor%}
-
+</body>
 {%endblock%}

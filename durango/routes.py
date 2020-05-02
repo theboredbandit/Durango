@@ -197,18 +197,23 @@ def send_sms_reminder(task1_id):
     body = "Hello "+user.username+"! This is a reminder about "+task1.title+". See details at Durango."
     #twilio#client = Client(twilio_account_sid, twilio_auth_token)
 
-    to = "+91"+user.mobileNum
+    to =user.mobileNum
     #twilio#client.messages.create(to=user.mobileNum,from_=twilio_number,body=body)
-    def sendSMS(apikey, numbers, message):
-        data =  urllib.parse.urlencode({'apikey': apikey, 'numbers': numbers,
-            'message' : message})
-        data = data.encode('utf-8')
-        request = urllib.request.Request("https://api.textlocal.in/send/?")
-        f = urllib.request.urlopen(request, data)
-        fr = f.read()
-        return(fr)
+    URL = 'https://www.sms4india.com/api/v1/sendCampaign'
 
-    resp =  sendSMS('ujY6cl2oAUo-A7iyIcdzpXeIFQwsPzEzon8hBbGmzy', to,body)
+    def sendPostRequest(reqUrl, apiKey, secretKey, useType, phoneNo, senderId, textMessage):     
+      req_params = {
+      'apikey':'GHAV00PT4TX58WKEJPVQGESYMHB3JKSO',
+      'secret':'R73HSSKN8UJ1NYKL',
+      'usetype':'stage',
+      'phone': to,
+      'message':body,
+      'senderid':'SMSIND'
+      }
+      return requests.post(reqUrl, req_params)
+
+    # get response
+    response = sendPostRequest(URL, 'provided-api-key', 'provided-secret', 'prod/stage', 'valid-to-mobile', 'active-sender-id', 'message-text' )
 #######################end
 @app.route("/task/ <int:task_id>")
 @login_required
@@ -349,7 +354,7 @@ def mail_tasks():
             current_user.app_password=form.app_password.data
             db.session.commit()
             flash('App password added successfully','success')
-            return render_template('mail_tasks.html')
+            return redirect(url_for('mail_tasks'))
         return render_template('app_password.html',form=form)
     else:
         msgs=readmail(current_user.email,current_user.app_password)
@@ -357,10 +362,7 @@ def mail_tasks():
         for msg in msgs:
             if Task.query.filter_by(message_id=msg[4]).first():
                 continue
-            elif m_ids.query.filter_by(removed_id=msg[4]).first():
-                continue
-            else:
-                temp.append(msg)
+            temp.append(msg)
         return render_template('mail_tasks.html',msgs=temp)
 
 
@@ -379,16 +381,6 @@ def mail_task_add(message_id,subject):
         form.details.data=subject #setting mail subject as taskdetails
     return render_template('create_task.html',form=form)
 
-
-@app.route("/mail_task_remove/<message_id>",methods=['GET', 'POST'])
-@login_required
-def mail_task_remove(message_id):
-    obj=m_ids(removed_id=message_id)
-    db.session.add(obj)
-    db.session.commit()
-    flash(message_id+" removed")
-    response="remaining on this page"
-    return ((''),200, {'Content-Type': 'text/plain'})
 
 @app.route("/learn_more")
 def learn_more():

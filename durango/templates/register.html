@@ -98,6 +98,7 @@
                         {{ form.app_password(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
+                <small class="text-muted"  style="font-size: 15px; color: blue;"> We'll verify your phone number once you click 'Register'.</small>
             </fieldset>
             <div class="form-group">
                 {{ form.submit(class="btn btn-outline-info") }}
@@ -105,7 +106,7 @@
         </form>
     </div>
     <div class="border-top pt-3">
-        <small class=".text-dark" font>
+        <small class=".text-muted" style="font-size: 15px;">
             Already Have An Account? <a class="ml-2" href="{{ url_for('login') }}">Sign In</a>
         </small>
     </div>
