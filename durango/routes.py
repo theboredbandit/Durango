@@ -125,7 +125,7 @@ def logout():
 @app.route("/account")
 @login_required
 def account():
-    image_file=url_for('static',filename='profile_pics/' + current_user.image_file)
+    image_file=url_for('static',filename='images/user.png')
     return render_template('account.html',title='Account',image_file=image_file)
 
 
@@ -139,7 +139,6 @@ def update_account():
         current_user.email=form.email.data
         current_user.instituteId=form.instituteId.data
         current_user.mobileNum=form.mobileNum.data
-        current_user.app_password=form.app_password.data
         #db.session.add(user)
         db.session.commit()
         flash(f'Account updated successfully', 'success') #success is bootstrap class for the alert
@@ -149,7 +148,6 @@ def update_account():
         form.email.data=current_user.email
         form.mobileNum.data=current_user.mobileNum
         form.instituteId.data=current_user.instituteId
-        form.app_password.data=current_user.app_password
     image_file=url_for('static',filename='profile_pics/' + current_user.image_file)
     return render_template('update_account.html',title='Update Account',image_file=image_file,form=form,legend='Update credentials')
 
@@ -319,6 +317,7 @@ If you did not request this, please ignore the mail.
 '''
     mail.send(msg)
 @app.route("/reset_password",methods=['GET', 'POST'])
+@login_required
 def reset_initiate():
     form=InitiateResetForm()
     if form.validate_on_submit():

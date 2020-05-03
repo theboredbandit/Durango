@@ -126,7 +126,10 @@ a.article-title:hover {
   overflow: hidden;
   text-align: center;
 }
-
+.fill2{
+   flex-shrink: 0;
+ 
+}
 .fill img{
   flex-shrink: 0;
   width: 100%;

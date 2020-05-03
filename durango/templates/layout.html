@@ -30,8 +30,10 @@
 	      </button>
 	      <div class="collapse navbar-collapse" id="navbarToggle">
 	        <div class="navbar-nav mr-auto">
-	          <a class="nav-item nav-link" href="/" onMouseOver="this.style.btn='white'">Home</a>
-	          <a class="nav-item nav-link" href="/dashboard">Dashboard</a>
+	          <!--<a class="nav-item nav-link" href="/" onMouseOver="this.style.btn='white'">Home</a>-->
+            <a href="/" class="nav-item nav-link" style="padding: 0"><img src="{{url_for('static',filename='images/homeicon.png')}}" alt="home" height="48px" width="48px" class="fill2" style="object-fit: cover;" title="Home"></a>
+            &nbsp;&nbsp;&nbsp;
+	         <a href="/dashboard" class="nav-item nav-link" style="padding: 0"><img src="{{url_for('static',filename='images/dash2.png')}}" alt="dash" height="43px" width="43px" class="fill2" style="object-fit: cover;" title="Dashboard"></a>
 	        </div>
           <div class="navbar-nav">
 	        <!-- Navbar Right Side -->
