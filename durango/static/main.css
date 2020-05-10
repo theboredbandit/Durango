@@ -38,7 +38,7 @@ span.st {
 .site-header .navbar-nav .nav-link:hover {
   display: inline;
   animation-name: anime;
-  animation-duration: 0.4s;
+  animation-duration: 0.2s;
   
   animation-fill-mode: forwards;
 }

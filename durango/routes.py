@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect,request,abort,jsonify,session
 import requests
 import json
-from durango import app,db,bcrypt,celery,api,mail #using bcrypt to has the passwords in user database
+from durango import application,db,bcrypt,celery,api,mail #using bcrypt to has the passwords in user database
 from durango.models import User, Task,m_ids
 from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm,SelectDate,ResetPasswordForm, InitiateResetForm, app_passwordForm,MessageForm
 from flask_login import login_user,current_user,logout_user,login_required
@@ -19,13 +19,13 @@ twilio_auth_token = "2de91c10b5ce9cd7e3efcec543470dec"
 twilio_number = "+14784002746"
 
 #everything here that begins with @ is a decorator
-@app.route("/")
-@app.route("/home")
+@application.route("/")
+@application.route("/home")
 def home():
     return render_template('home.html',db=db,User=User,Task=Task)
 
 
-@app.route("/dashboard", methods=['GET', 'POST'])
+@application.route("/dashboard", methods=['GET', 'POST'])
 @login_required
 def dashboard():
     tasks=Task.query.filter_by(user_id=current_user.id).all()
@@ -50,7 +50,7 @@ def dashboard():
         return redirect(url_for('piechart',task_date=form2.date.data))
     return render_template('dashboard.html', title='Dashboard', tasks=tasks,form1=form1,form2=form2)
 
-@app.route("/phone_verification", methods=['GET', 'POST'])
+@application.route("/phone_verification", methods=['GET', 'POST'])
 def phone_verification():
     if request.method == "POST":
         country_code = request.form.get("country_code")
@@ -62,7 +62,7 @@ def phone_verification():
         return redirect(url_for("verify"))
     return render_template("phone_verification.html")
 
-@app.route("/verify", methods=["GET", "POST"])
+@application.route("/verify", methods=["GET", "POST"])
 def verify():
     if request.method == "POST":
         token = request.form.get("token")
@@ -79,11 +79,13 @@ def verify():
             flash('Registration successful for '+user.username+' ! Login now.','success')
             return redirect(url_for('login'))
         else:
-            db.session.delete(user)
-            db.session.commit()
+            if user:
+                db.session.delete(user)
+                db.session.commit()
+            flash('Wrong OTP!','danger')
     return render_template("verify.html")
 
-@app.route("/register", methods=['GET', 'POST'])
+@application.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard')) #redirects user to dashboard if already logged in; function name is passed in url_for
@@ -100,7 +102,7 @@ def register():
         return render_template("phone_verification.html",pn=user.mobileNum)
     return render_template('register.html', title='Register', form=form)
 
-@app.route("/login", methods=['GET', 'POST'])
+@application.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))  
@@ -116,20 +118,20 @@ def login():
             flash('Login Unsuccessful. Please check username and password', 'danger')
     return render_template('login.html', title='Login', form=form)
 
-@app.route("/logout")
+@application.route("/logout")
 def logout():
     logout_user()
     flash('You have logged out  !','success')
     return redirect(url_for('home'))
 
-@app.route("/account")
+@application.route("/account")
 @login_required
 def account():
     image_file=url_for('static',filename='images/user.png')
     return render_template('account.html',title='Account',image_file=image_file)
 
 
-@app.route("/account/update",methods=['GET', 'POST'])
+@application.route("/account/update",methods=['GET', 'POST'])
 @login_required
 def update_account():
     form=UpdateAccountForm()
@@ -151,7 +153,7 @@ def update_account():
     image_file=url_for('static',filename='profile_pics/' + current_user.image_file)
     return render_template('update_account.html',title='Update Account',image_file=image_file,form=form,legend='Update credentials')
 
-@app.route("/account/delete",methods=['GET', 'POST'])
+@application.route("/account/delete",methods=['GET', 'POST'])
 @login_required
 def delete_account():
     user=User.query.filter_by(id=current_user.id).first()
@@ -163,7 +165,7 @@ def delete_account():
     flash('Account deleted','success')
     return redirect(url_for('home'))
 
-@app.route("/task/new",methods=['GET', 'POST'])
+@application.route("/task/new",methods=['GET', 'POST'])
 @login_required
 def new_task():
     form=TaskForm()
@@ -213,13 +215,13 @@ def send_sms_reminder(task1_id):
     # get response
     response = sendPostRequest(URL, 'provided-api-key', 'provided-secret', 'prod/stage', 'valid-to-mobile', 'active-sender-id', 'message-text' )
 #######################end
-@app.route("/task/ <int:task_id>")
+@application.route("/task/ <int:task_id>")
 @login_required
 def task(task_id):
     task=Task.query.get_or_404(task_id) #get_or_404 returns the requested page if it exists else it returns a 404 error
     return render_template('task.html',title=task.title,task=task)
 
-@app.route("/task/ <int:task_id>/update",methods=['GET', 'POST'])
+@application.route("/task/ <int:task_id>/update",methods=['GET', 'POST'])
 @login_required
 def update_task(task_id):
     task=Task.query.get_or_404(task_id)
@@ -244,7 +246,7 @@ def update_task(task_id):
         form.endtime.data=task.endtime
         form.status.data=task.status
     return render_template('create_task.html', title='Update Task',form=form, legend='Update Task')
-@app.route("/task/ <int:task_id>/delete",methods=['GET', 'POST'])
+@application.route("/task/ <int:task_id>/delete",methods=['GET', 'POST'])
 @login_required
 def delete_task(task_id):
     task=Task.query.get_or_404(task_id)
@@ -255,7 +257,7 @@ def delete_task(task_id):
     flash('Task deleted!','warning')
     return redirect(url_for('dashboard'))
 
-@app.route("/data")
+@application.route("/data")
 @login_required
 def data():
     tasks=Task.query.filter_by(user_id=current_user.id)
@@ -271,7 +273,7 @@ def data():
             fa=fa+1
     values=[to,co,ru,fa]
     return jsonify({'results' : values})
-@app.route("/linechart")
+@application.route("/linechart")
 @login_required
 def linechart():
     tasks=Task.query.filter_by(user_id=current_user.id)
@@ -287,7 +289,7 @@ def linechart():
             fa=fa+1
     return render_template('linechart.html',to=to,ru=ru,co=co,fa=fa,total=to+ru+co+fa)
 
-@app.route("/piechart/<task_date>")
+@application.route("/piechart/<task_date>")
 @login_required
 def piechart(task_date):
     tasks=Task.query.filter_by(user_id=current_user.id)
@@ -316,7 +318,7 @@ def send_reset_email(user):
 If you did not request this, please ignore the mail.
 '''
     mail.send(msg)
-@app.route("/reset_password",methods=['GET', 'POST'])
+@application.route("/reset_password",methods=['GET', 'POST'])
 @login_required
 def reset_initiate():
     form=InitiateResetForm()
@@ -328,7 +330,7 @@ def reset_initiate():
     return render_template('reset_initiate.html',title='Reset Password',form=form)
 
 
-@app.route("/reset_password/<token>",methods=['GET', 'POST'])
+@application.route("/reset_password/<token>",methods=['GET', 'POST'])
 def reset_token(token):
     user=User.verify_reset_token(token)
     if user is None:
@@ -344,7 +346,7 @@ def reset_token(token):
     return render_template('reset_token.html',title='Reset Password',form=form)
 
 
-@app.route("/mail_tasks",methods=['GET', 'POST'])
+@application.route("/mail_tasks",methods=['GET', 'POST'])
 @login_required
 def mail_tasks():
     if current_user.app_password==None:
@@ -365,7 +367,7 @@ def mail_tasks():
         return render_template('mail_tasks.html',msgs=temp)
 
 
-@app.route("/mail_task_add/<message_id>/<subject>",methods=['GET', 'POST'])
+@application.route("/mail_task_add/<message_id>/<subject>",methods=['GET', 'POST'])
 @login_required
 def mail_task_add(message_id,subject):
     form=TaskForm()
@@ -381,11 +383,11 @@ def mail_task_add(message_id,subject):
     return render_template('create_task.html',form=form)
 
 
-@app.route("/learn_more")
+@application.route("/learn_more")
 def learn_more():
     return render_template("howto-app_password.html")
 
-@app.route("/contact_us",methods=['GET', 'POST'])
+@application.route("/contact_us",methods=['GET', 'POST'])
 def contact_us():
     form=MessageForm()
     if current_user.is_authenticated:

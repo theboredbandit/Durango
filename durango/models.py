@@ -1,6 +1,6 @@
 from datetime import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from durango import db,login_manager,app
+from durango import db,login_manager,application
 from flask_login import UserMixin
 
 import arrow;
@@ -23,11 +23,11 @@ class User(db.Model, UserMixin):
     tasks=db.relationship('Task',backref='author',lazy=True)
  
     def get_reset_token(self,expires_sec=1800):
-        s=Serializer(app.config['SECRET_KEY'],expires_sec)
+        s=Serializer(application.config['SECRET_KEY'],expires_sec)
         return s.dumps({'user_id': self.id}).decode('utf-8')
     @staticmethod #not accepting a self parameter as an argument    
     def verify_reset_token(token):
-        s=Serializer(app.config['SECRET_KEY'])
+        s=Serializer(application.config['SECRET_KEY'])
         #adding a try catch block since the token might expire before the function executes
         try:
             user_id=s.loads(token)['user_id']
