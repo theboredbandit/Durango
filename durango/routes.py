@@ -127,7 +127,7 @@ def logout():
 @application.route("/account")
 @login_required
 def account():
-    image_file=url_for('user.png')
+    image_file=url_for('durango',filename='static/images/user.png')
     return render_template('account.html',title='Account',image_file=image_file)
 
 
