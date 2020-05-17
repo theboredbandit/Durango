@@ -1,6 +1,7 @@
 from flask import render_template, url_for, flash, redirect,request,abort,jsonify,session
 import requests
 import json
+import imaplib
 from durango import application,db,bcrypt,celery,api,mail #using bcrypt to has the passwords in user database
 from durango.models import User, Task,m_ids
 from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm,SelectDate,ResetPasswordForm, InitiateResetForm, app_passwordForm,MessageForm
@@ -127,7 +128,7 @@ def logout():
 @application.route("/account")
 @login_required
 def account():
-    image_file=url_for('durango',filename='static/images/user.png')
+    image_file=url_for('static',filename='images/user.png')
     return render_template('account.html',title='Account',image_file=image_file)
 
 
@@ -186,7 +187,7 @@ def new_task():
 ####  code for sending sms reminder
 #####################start
 
-@celery.task()
+@celery.task(name='tasks.send_sms_reminder')
 def send_sms_reminder(task1_id):
     try:
         task1 = Task.query.filter_by(id=task1_id).first()
@@ -305,9 +306,8 @@ def piechart(task_date):
                 co=co+1
             elif task.status=='Failed':
                 fa=fa+1
-   
     values=json.dumps( [to, co,ru,fa] )
-    return render_template('piechart.html',values=values)
+    return render_template('piechart.html',values=values,date=task_date)
 
 def send_reset_email(user):
     token=user.get_reset_token()
@@ -352,6 +352,15 @@ def mail_tasks():
     if current_user.app_password==None:
         form=app_passwordForm()
         if form.validate_on_submit():
+            mail = imaplib.IMAP4_SSL('imap.gmail.com')
+            username = current_user.email
+            password = form.app_password.data
+            try:
+                mail.login(username, password)
+            except mail.error as e:
+                if 'Invalid credentials' in str(e):
+                    flash('Incorrect App password!','danger')
+                    return render_template('app_password.html',form=form)
             current_user.app_password=form.app_password.data
             db.session.commit()
             flash('App password added successfully','success')

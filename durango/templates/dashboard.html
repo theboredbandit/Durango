@@ -46,7 +46,7 @@
                     {% if form1.search.errors %}
                         {{ form1.search(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
-                            {% for error in form.search.errors %}
+                            {% for error in form1.search.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
@@ -71,7 +71,7 @@
                     {% if form2.date.errors %}
                         {{ form2.date(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
-                            {% for error in form.search.errors %}
+                            {% for error in form2.search.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>

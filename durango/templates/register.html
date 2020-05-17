@@ -84,20 +84,6 @@
                         {{ form.confirm_password(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
-                 <div class="form-group">
-                    {{ form.app_password.label(class="form-control-label") }}
-                    &nbsp; &nbsp; &nbsp;<a href="{{url_for('learn_more')}}"><span>Learn more</span></a>
-                    {% if form.app_password.errors %}
-                        {{ form.app_password(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.app_password.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.app_password(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
                 <small class="text-muted"  style="font-size: 15px; color: blue;"> We'll verify your phone number once you click 'Register'.</small>
             </fieldset>
             <div class="form-group">

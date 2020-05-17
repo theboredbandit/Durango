@@ -14,6 +14,7 @@ def readmail(username, password):
     # create an IMAP4 class with SSL 
     imap = imaplib.IMAP4_SSL("imap.gmail.com")
     # authenticate
+    
     imap.login(username, password)
 
     status, messages = imap.select("INBOX")
