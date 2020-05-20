@@ -19,9 +19,9 @@
 
   <body>
     <div class="content-section">
-        <form name="verify" action="{{url_for('phone_verification',user_id=id)}}" accept-charset="UTF-8" onsubmit="return validateForm()" method="post" required>
+        <form name="verify" action="{{url_for('phone_verification_update')}}" accept-charset="UTF-8" onsubmit="return validateForm()" method="post" required>
           <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Please verify your phone number before logging in.</legend>
+                <legend class="border-bottom mb-4">Please verify your phone number before saving your update.</legend>
                 <div class="form-group">
             <label for="authy-countries" class="form-control-label">Country code:</label>
             <select name="country_code" id="authy-countries" data-show-as="number"></select>

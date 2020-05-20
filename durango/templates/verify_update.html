@@ -1,0 +1,19 @@
+{%extends "layout.html"%}
+{%block content%}
+  <body>
+  <div class="content-section">
+    <form action="{{url_for('verify_update',user_id=id)}}" accept-charset="UTF-8" method="post">
+      <fieldset class="form-group">
+      <legend class="border-bottom mb-4">Enter the verification code you were sent.</legend>
+        <div class="form-group">
+          <label class="form-control-label">4-digit code:</label>
+            <input name="token" id="token">
+        </div>
+        <div class="form-group">
+          <button name="button" type="submit" class="btn btn-outline-info">Verify</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  </body>
+{%endblock%}

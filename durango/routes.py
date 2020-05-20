@@ -83,7 +83,7 @@ def verify():
             if user:
                 db.session.delete(user)
                 db.session.commit()
-            flash('Wrong OTP!','danger')
+            flash('Invalid OTP!','danger')
     return render_template("verify.html")
 
 @application.route("/register", methods=['GET', 'POST'])
@@ -131,6 +131,36 @@ def account():
     image_file=url_for('static',filename='images/user.png')
     return render_template('account.html',title='Account',image_file=image_file)
 
+@application.route("/phone_verification_update", methods=['GET', 'POST'])
+def phone_verification_update():
+    if request.method == "POST":
+        country_code = request.form.get("country_code")
+        phone_number = request.form.get("phone_number")
+        method = request.form.get("method")
+        session['country_code'] = country_code
+        session['phone_number'] = phone_number
+        api.phones.verification_start(phone_number, country_code, via=method)
+        return redirect(url_for("verify_update"))
+    return render_template("phone_verification_update.html")
+
+
+@application.route("/verify_update", methods=["GET", "POST"])
+def verify_update():
+    if request.method == "POST":
+        token = request.form.get("token")
+        phone_number = session.get("phone_number")
+        country_code = session.get("country_code")
+        verification = api.phones.verification_check(phone_number,
+                                                     country_code,
+                                                     token)
+        if verification.ok():
+            current_user.mobileNum=phone_number
+            db.session.commit()
+            flash('Account updated successfully!','success')
+            return redirect(url_for('account'))
+        else:
+            flash('Invalid OTP!','danger')
+    return render_template("verify_update.html")
 
 @application.route("/account/update",methods=['GET', 'POST'])
 @login_required
@@ -141,11 +171,13 @@ def update_account():
         current_user.username=form.username.data
         current_user.email=form.email.data
         current_user.instituteId=form.instituteId.data
-        current_user.mobileNum=form.mobileNum.data
-        #db.session.add(user)
         db.session.commit()
-        flash(f'Account updated successfully', 'success') #success is bootstrap class for the alert
-        return redirect(url_for('account'))
+        #db.session.add(user)
+        if form.mobileNum.data != current_user.mobileNum:
+            return render_template("phone_verification_update.html",pn=form.mobileNum.data)
+        else:
+            flash('Account updated successfully!','success')
+            return redirect(url_for('account'))
     elif request.method=='GET':  #if submit btn is not clicked and account page is requested, it eill already fill the usename field with existing data
         form.username.data=current_user.username
         form.email.data=current_user.email
