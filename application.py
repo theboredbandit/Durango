@@ -1,3 +1,3 @@
-from durango import application
+from durango import application,socketio
 if __name__ == '__main__':
-    application.run(debug=True)
+    socketio.run(application, debug=True)

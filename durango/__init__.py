@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_socketio import SocketIO
 from kombu.utils.url import safequote
 from celery import Celery
 
@@ -10,7 +11,8 @@ from celery import Celery
 
 
 from authy.api import AuthyApiClient
-from durango import config
+
+
 application = Flask(__name__)
 
 
@@ -19,24 +21,17 @@ application.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 #application.config['SQLALCHEMY_TRACK_MODIFICATIONS']=True
 
 #configuring with authy to verify phone number
+
 application.config['AUTHY_API_KEY']='Cur6vF9dwUvuPGqDJhuaFoa7UivqYNzF'
 api=AuthyApiClient(application.config['AUTHY_API_KEY'])
 #configuring celery for sms purpose
-#aws_access_key = safequote("AKIAJYXGSJXZWV4HPFJA")
-#aws_secret_key = safequote("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")
 
-#broker_url = "sqs://{aws_access_key}:{aws_secret_key}@".format(
- #   aws_access_key=aws_access_key, aws_secret_key=aws_secret_key,
-#)
 
 broker_transport_options = {'region': 'ap-south-1'}
 
 #application.config['CELERY_BROKER_URL'] =broker_url
 application.config.update(CELERY_BROKER_URL='sqs://sqs.ap-south-1.amazonaws.com/arn:aws:sqs:ap-south-1:788426066576:flask-es/flask-es')
 application.config['CELERY_BROKER_TRANSPORT_OPTIONS']=broker_transport_options
-#application.config['CELERY_BACKEND']='redis://127.0.0.1:6379/0' #database to add asynchronous task of sending sms
-
-#setting api
 
 
 def make_celery(application):
@@ -56,6 +51,7 @@ def make_celery(application):
 celery=make_celery(application)
 db=SQLAlchemy(application)
 bcrypt =Bcrypt(application)
+socketio = SocketIO(application)
 login_manager=LoginManager(application)
 login_manager.login_view='login' #setting the route to login
 login_manager.login_message_category='info'

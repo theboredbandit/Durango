@@ -1,0 +1,106 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Your Network</h1>
+  <div class="container" id="main-section">
+
+    <div>
+
+      <!-- Nav tabs -->
+      <ul class="nav nav-tabs" role="tablist" >
+
+        <li role="presentation" class="nav-item">
+          <a href="#connections" class="nav-link" style="color: #054484;" id="connections-tab" role="tab" data-toggle="tab" aria-controls="Connections" aria-expanded="true">My Connections</a>
+        </li>
+        &nbsp; &nbsp; &nbsp;
+        <li role="presentation" class="nav-item">
+          <a href="#received-connection-requests" class="nav-link" id="received-connection-requests-tab" data-toggle="tab" aria-controls="tab-drop-contents" aria-expanded="false" style="color: #054484;">
+            Connection Requests
+          </a>
+        </li>
+        &nbsp; &nbsp; &nbsp;
+        <li role="presentation" class="nav-item">
+          <a href="#add-connections" class="nav-link" id="add-connections-tab" role="tab" data-toggle="tab" aria-controls="add-connections" aria-expanded="false" style="color:  #054484;">Add Connections</a>
+        </li>
+      </ul>
+     </div>
+     <br>
+      <!-- Tab panes -->
+      <div class="tab-content">
+
+        <!-- connections tab content -->
+        <div role="tabpanel" class="tab-pane fade show in" id="connections" aria-labelledby="connections-tab">
+            {% if connections %}
+              {% for connection in connections %}
+                <div class="content-section" >
+                  <div class="media">
+                      <img class="rounded-circle account-img"  src="{{url_for('static',filename='images/user.png')}}">
+                  <div class="media-body">
+                    <h2 class="account-heading">{{connection.username}}</h2>
+                    <p class="text-secondary">{{connection.email}}</p>
+                      <div style="text-align: left;">
+                        <div>
+                      <a class="btn btn-info btn-sm m-1" href="{{url_for('chat',user_id=connection.id)}}">Chat</a>
+                        </div>
+                      </div>
+        
+                  </div>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="col-xs-12">
+                <p>You haven't added any connections. Find connections and send them a connect request!</p>
+              </div>
+            {% endif %}
+        </div>
+
+        <!-- Received Connection Requests tab content -->
+        <div role="tabpanel" class="tab-pane fade" id="received-connection-requests" aria-labelledby="received-connection-requests-tab">
+         
+            {% if received_connection_requests %}
+              {% for received_connection_request in received_connection_requests %}
+              <article class="media content-section" style="padding-top: 0.4rem; padding-bottom: 0.3rem;" >
+              <div class="media-body" >
+            
+                <span class="article-title" style="display: inline-block; font-size: 1.4rem;"><a href="{{url_for('see_user',code=1,user_id=received_connection_request.id)}}">{{received_connection_request.username}}</a></span>
+                <span style="float: right;"> <a class="btn btn-info btn-sm m-1" href="{{url_for('see_user',code=1,user_id=received_connection_request.id)}}" id="connect">View</a> </span>
+
+              </div>
+              </article>
+              {% endfor %}
+            {% else %}
+              <div class="col-xs-12">
+                <p>No pending Connection Requests for you.</p>
+              </div>
+            {% endif %}
+
+        </div><!-- /#received-connection-requests -->
+
+        <!-- Find connections tab content -->
+        <div role="tabpanel" class="tab-pane fade" id="add-connections" aria-labelledby="add-connections-tab">
+
+          {% if users %} 
+           {% for user in users %}
+
+              <article class="media content-section" style="padding-top: 0.4rem; padding-bottom: 0.3rem;" >
+              <div class="media-body" >
+            
+                <span class="article-title" style="display: inline-block; font-size: 1.4rem;"><a href="{{url_for('see_user',code=0,user_id=user.id)}}">{{user.username}}</a></span>
+                <span style="float: right;"> {{user.email}} </span>
+              </div>
+              </article>
+
+        {% endfor %}
+            {%else%}
+            <div class="col-xs-12">
+                <p>All Durango users are already your connections.</p>
+              </div>
+         {%endif%} 
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}

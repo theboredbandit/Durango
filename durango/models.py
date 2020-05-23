@@ -3,8 +3,6 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from durango import db,login_manager,application
 from flask_login import UserMixin
 
-import arrow;
-
 #decorator for login
 @login_manager.user_loader
 def load_user(user_id):
@@ -12,6 +10,7 @@ def load_user(user_id):
 
 
 class User(db.Model, UserMixin):
+    #__tablename__ = "users"
     id=db.Column(db.Integer, primary_key=True)
     username=db.Column(db.String(20),unique=True, nullable=False)
     email=db.Column(db.String(100),unique=True, nullable=False)
@@ -40,8 +39,7 @@ class User(db.Model, UserMixin):
         return f"User('{self.username}','{self.email}','{self.instituteId}','{self.mobileNum}','{self.image_file}')"
 
 class Task(db.Model):
-    ##__searchable__=['title','details']
-
+    #__tablename__ = "tasks"
     id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.String(100), nullable=False)
     date=db.Column(db.Date(),nullable=False)
@@ -55,6 +53,29 @@ class Task(db.Model):
 
     def __repr__(self):
         return f"Task('{self.title}','{self.date}','{self.starttime}','{self.endtime}',{self.status}')"
+
+class Connection(db.Model):
+    """Connection between two users to establish a friendship and can see each other's info."""
+
+    #__tablename__ = "connections"
+
+    connection_id = db.Column(db.Integer, primary_key=True)
+    user_a_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_b_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    status = db.Column(db.String(100), nullable=False)
+
+    # When both columns have a relationship with the same table, need to specify how
+    # to handle multiple join paths in the square brackets of foreign_keys per below
+    user_a = db.relationship("User", foreign_keys=[user_a_id], backref=db.backref("sent_connections"))
+    user_b = db.relationship("User", foreign_keys=[user_b_id], backref=db.backref("received_connections"))
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<Connection connection_id=%s user_a_id=%s user_b_id=%s status=%s>" % (self.connection_id,
+                                                                                      self.user_a_id,
+                                                                                      self.user_b_id,
+                                                                                      self.status)
 
 class m_ids(db.Model):
     id=db.Column(db.Integer,primary_key=True)

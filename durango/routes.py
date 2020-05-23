@@ -2,9 +2,10 @@ from flask import render_template, url_for, flash, redirect,request,abort,jsonif
 import requests
 import json
 import imaplib
-from durango import application,db,bcrypt,celery,api,mail #using bcrypt to has the passwords in user database
-from durango.models import User, Task,m_ids
+from durango import application,db,bcrypt,celery,api,mail,socketio #using bcrypt to has the passwords in user database
+from durango.models import User, Task,m_ids,Connection
 from durango.forms import RegistrationForm, LoginForm,UpdateAccountForm,TaskForm,SearchForm,SelectDate,ResetPasswordForm, InitiateResetForm, app_passwordForm,MessageForm
+from durango.connections import is_connection_or_pending, get_connection_requests, get_connections
 from flask_login import login_user,current_user,logout_user,login_required
 from sqlalchemy.orm.exc import NoResultFound
 from twilio.rest import Client
@@ -442,3 +443,96 @@ def contact_us():
         mail.send(msg)
         flash('Your message has been sent.','success')
     return render_template("contact_us.html",form=form)
+
+@application.route("/see_user/<int:code>/<int:user_id>") #code is 0 for add connections and 1 for received connections
+@login_required
+def see_user(code,user_id):
+    user=User.query.filter_by(id=user_id).first()
+    return render_template("see_user.html",user=user,code=code)
+
+@application.route("/add_connection/<int:user_b_id>", methods=["GET","POST"])
+@login_required
+def add_connection(user_b_id):
+    """Send a connection request to another user."""
+
+    user_a_id = current_user.id
+    user_b=User.query.filter_by(id=user_b_id).first()
+    # Check connection status between user_a and user_b
+    is_connection, is_pending = is_connection_or_pending(user_a_id, user_b_id)
+    status=is_pending
+    if user_a_id == user_b_id:
+        return "You cannot add yourself as a connection."
+    elif is_connection:
+        flash(user_b.username+' is already a connection.','info')
+        return render_template("see_user.html",code=0,user=user_b)
+    elif is_pending:
+        flash('Your connection request is pending.','info')
+        return render_template("see_user.html",code=0,user=user_b)
+    else:
+        requested_connection = Connection(user_a_id=user_a_id,
+                                          user_b_id=user_b_id,
+                                          status="Requested")
+        db.session.add(requested_connection)
+        db.session.commit()
+        flash('Your connection request has been sent.','success')
+        return render_template("see_user.html",code=0,user=user_b)
+
+@application.route("/connections")
+@login_required
+def show_connections_and_requests():
+    """Show connection requests and list of all connections"""
+
+    # This returns User objects for current user's connection requests
+    received_connection_requests, sent_connection_requests = get_connection_requests(current_user.id)
+
+    # This returns User objects for current user's connection
+    connections_1,connections_2 = get_connections(current_user.id)
+    connections=connections_1.all()+connections_2.all()
+    users=[]
+    temps=User.query.all()
+    for temp in temps:
+        flag=0
+        for c in connections:
+            if temp.id==c.id:
+                flag=1
+                break
+        if flag==0 and temp.id!=current_user.id:
+            users.append(temp)
+    return render_template("connections.html",
+                           received_connection_requests=received_connection_requests,
+                           sent_connection_requests=sent_connection_requests,
+                           connections=connections,users=users)
+
+@application.route("/accept_request/<int:user_a_id>")
+@login_required
+def accept_request(user_a_id):
+    connection=Connection.query.filter_by(user_b_id=current_user.id, user_a_id=user_a_id).first()
+    connection.status="Accepted"
+    db.session.commit()
+    sender=User.query.filter_by(id=user_a_id).first()
+    flash(sender.username+' is now a connection!','success')
+    return redirect(url_for('show_connections_and_requests'))
+
+@application.route("/delete_request/<int:user_a_id>")
+@login_required
+def delete_request(user_a_id):
+    connection=Connection.query.filter_by(user_b_id=current_user.id, user_a_id=user_a_id).all()
+    for c in connection:
+        c.status="Deleted"   
+    db.session.commit()
+    flash('Request deleted','info')
+    return redirect(url_for('show_connections_and_requests'))
+
+@application.route("/chat/<int:user_id>")
+@login_required
+def chat(user_id):
+    return render_template('session.html',user_id=user_id)
+
+def messageReceived(methods=['GET', 'POST']):
+    print('message was received!!!')
+
+
+@socketio.on('my event')
+def handle_my_custom_event(json, methods=['GET', 'POST']):
+    print('received my event: ' + str(json))
+    socketio.emit('my response', json, callback=messageReceived)
