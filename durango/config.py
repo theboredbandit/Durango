@@ -1,1 +1,0 @@
-AUTHY_API_KEY='kFbUdL1LeZJ70k2btdpfiKlVFZmAHV7x'
