@@ -10,17 +10,17 @@
       <ul class="nav nav-tabs" role="tablist" >
 
         <li role="presentation" class="nav-item">
-          <a href="#connections" class="nav-link" style="color: #054484;" id="connections-tab" role="tab" data-toggle="tab" aria-controls="Connections" aria-expanded="true">My Connections</a>
+          <a href="#connections" class="nav-link" style="color: #03274c;" id="connections-tab" role="tab" data-toggle="tab" aria-controls="Connections" aria-expanded="true">My Connections</a>
         </li>
         &nbsp; &nbsp; &nbsp;
         <li role="presentation" class="nav-item">
-          <a href="#received-connection-requests" class="nav-link" id="received-connection-requests-tab" data-toggle="tab" aria-controls="tab-drop-contents" aria-expanded="false" style="color: #054484;">
+          <a href="#received-connection-requests" class="nav-link" id="received-connection-requests-tab" data-toggle="tab" aria-controls="tab-drop-contents" aria-expanded="false" style="color: #03274c;">
             Connection Requests
           </a>
         </li>
         &nbsp; &nbsp; &nbsp;
         <li role="presentation" class="nav-item">
-          <a href="#add-connections" class="nav-link" id="add-connections-tab" role="tab" data-toggle="tab" aria-controls="add-connections" aria-expanded="false" style="color:  #054484;">Add Connections</a>
+          <a href="#add-connections" class="nav-link" id="add-connections-tab" role="tab" data-toggle="tab" aria-controls="add-connections" aria-expanded="false" style="color:  #03274c;">Find Connections</a>
         </li>
       </ul>
      </div>
@@ -50,7 +50,7 @@
               {% endfor %}
             {% else %}
               <div class="col-xs-12">
-                <p>You haven't added any connections. Find connections and send them a connect request!</p>
+                <p >You haven't added any connections. Find connections and send them a connect request!</p>
               </div>
             {% endif %}
         </div>
@@ -61,9 +61,11 @@
             {% if received_connection_requests %}
               {% for received_connection_request in received_connection_requests %}
               <article class="media content-section" style="padding-top: 0.4rem; padding-bottom: 0.3rem;" >
+              <a href="{{url_for('see_user',code=1,user_id=received_connection_request.id)}}"><img src="{{url_for('static',filename='images/userinlist.png')}}" alt="user" height="34px" width="34px" class="fill2" style="object-fit: cover;"></a>
+              &nbsp;&nbsp;&nbsp;
               <div class="media-body" >
             
-                <span class="article-title" style="display: inline-block; font-size: 1.4rem;"><a href="{{url_for('see_user',code=1,user_id=received_connection_request.id)}}">{{received_connection_request.username}}</a></span>
+                <span class="article-title" style="display: inline-block; font-size: 1.2rem;"><a href="{{url_for('see_user',code=1,user_id=received_connection_request.id)}}">{{received_connection_request.username}}</a></span>
                 <span style="float: right;"> <a class="btn btn-info btn-sm m-1" href="{{url_for('see_user',code=1,user_id=received_connection_request.id)}}" id="connect">View</a> </span>
 
               </div>
@@ -84,10 +86,12 @@
            {% for user in users %}
 
               <article class="media content-section" style="padding-top: 0.4rem; padding-bottom: 0.3rem;" >
+                <a href="{{url_for('see_user',code=0,user_id=user.id)}}"><img src="{{url_for('static',filename='images/userinlist.png')}}" alt="user" height="34px" width="34px" class="fill2" style="object-fit: cover;"></a>
+                &nbsp; &nbsp; &nbsp;
               <div class="media-body" >
             
-                <span class="article-title" style="display: inline-block; font-size: 1.4rem;"><a href="{{url_for('see_user',code=0,user_id=user.id)}}">{{user.username}}</a></span>
-                <span style="float: right;"> {{user.email}} </span>
+                <span class="article-title" style="display: inline-block; font-size: 1.2rem;"><a href="{{url_for('see_user',code=0,user_id=user.id)}}">{{user.username}}</a></span>
+                
               </div>
               </article>
 

@@ -506,8 +506,15 @@ def show_connections_and_requests():
 @application.route("/accept_request/<int:user_a_id>")
 @login_required
 def accept_request(user_a_id):
-    connection=Connection.query.filter_by(user_b_id=current_user.id, user_a_id=user_a_id).first()
-    connection.status="Accepted"
+    connection=Connection.query.filter_by(user_b_id=current_user.id, user_a_id=user_a_id).all()
+    for c in connection:
+        db.session.delete(c)
+    # if current_user had send request to user_a it would also get accepted
+    connection=Connection.query.filter_by(user_a_id=current_user.id,user_b_id=user_a_id).all()
+    for c in connection:
+        db.session.delete(c)
+    c=Connection(user_a_id=user_a_id,user_b_id=current_user.id,status="Accepted")
+    db.session.add(c)
     db.session.commit()
     sender=User.query.filter_by(id=user_a_id).first()
     flash(sender.username+' is now a connection!','success')
@@ -523,6 +530,22 @@ def delete_request(user_a_id):
     flash('Request deleted','info')
     return redirect(url_for('show_connections_and_requests'))
 
+@application.route("/message_user/<int:receiver_id>",methods=['GET', 'POST'])
+@login_required
+def message_user(receiver_id):
+    form=MessageForm()
+    r=User.query.filter_by(id=receiver_id).first()
+    if current_user.is_authenticated:
+        form.email.data=current_user.email
+    if form.validate_on_submit():
+        msg=Message('Sent by Durango user: '+current_user.username,sender=form.email.data,recipients=[r.email]) 
+        msg.body=f'''{current_user.username} says:
+        {form.message.data}
+'''
+        mail.send(msg)
+        flash('Your message has been sent.','success')
+    return render_template("message_user.html",form=form)
+
 @application.route("/chat/<int:user_id>")
 @login_required
 def chat(user_id):
@@ -531,7 +554,7 @@ def chat(user_id):
 def messageReceived(methods=['GET', 'POST']):
     print('message was received!!!')
 
-
+###chat socket
 @socketio.on('my event')
 def handle_my_custom_event(json, methods=['GET', 'POST']):
     print('received my event: ' + str(json))

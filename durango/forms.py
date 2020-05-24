@@ -15,23 +15,19 @@ class RegistrationForm(FlaskForm):
 	submit=SubmitField("Register")
 
 	def validate_username(self, username):
-		#if(username.data!=current_user.username):
 			user=User.query.filter_by(username=username.data).first()
 			if user:
 				raise ValidationError('Username already in use. Please choose a different one.');
 
 	def validate_email(self, email):
-		#if(email.data!=current_user.email):
 			user=User.query.filter_by(email=email.data).first()
 			if user:
 				raise ValidationError('Email already in use. Please choose a different one.');
 	def validate_mobileNum(self, mobileNum):
-		#if(mobileNum.data!=current_user.mobileNum):
 			user=User.query.filter_by(mobileNum=mobileNum.data).first()
 			if user:
 				raise ValidationError('Mobile Number already in use. Please choose a different one.');
 	def validate_instituteId(self, instituteId):
-		#if(instituteId.data!=current_user.instituteId):
 			user=User.query.filter_by(instituteId=instituteId.data).first()
 			if user:
 				raise ValidationError('Institute Id is already in use. Please choose a different one.');
@@ -67,9 +63,7 @@ class UpdateAccountForm(FlaskForm):
 
 class LoginForm(FlaskForm):
 	username=StringField('Username',validators=[DataRequired(),Length(min=2,max=20)])#field should not be empty and length should be between 2 and 20
-	#email=StringField('Email',validators=[DataRequired(),Email()])
 	password=PasswordField('Password', validators=[DataRequired()]) 
-	#confirm_password=PasswordField('Confirm_Password',validators=[DataRequired(), EqualTo('password')])
 	remember = BooleanField('Remember Me')
 	submit=SubmitField("Login")
 

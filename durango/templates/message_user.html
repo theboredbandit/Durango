@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Send a personalised note.</legend>
+                 <div class="form-group">
+                   <label class="form-control-label">Your message:</label>
+                        {{ form.message(class="form-control form-control-lg") }}
+                 
+                </div>
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+ {%endblock%}

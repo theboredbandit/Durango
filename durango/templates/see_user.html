@@ -9,20 +9,16 @@
  			<h2 class="account-heading">{{user.username}}</h2>
  			<p class="text-secondary">{{user.email}}</p>
  			{%if code==0%}
- 			<div style="text-align: center;">
+ 			<div style="text-align: left;">
 				<div>
             		<a class="btn btn-success btn-sm m-1" href="{{url_for('add_connection',user_b_id=user.id)}}" id="connect">CONNECT</a>
-       			 </div>
-        		<div>
-          		  <a class="btn btn-info btn-sm m-1" href="#"> MESSAGE</a>
+          		  <a class="btn btn-info btn-sm m-1" href="{{url_for('message_user',receiver_id=user.id)}}"> MESSAGE</a>
        			 </div>
     		</div>
     		{%else%}
-    		<div style="text-align: center;">
+    		<div style="text-align: left;">
 				<div>
             		<a class="btn btn-success btn-sm m-1" href="{{url_for('accept_request',user_a_id=user.id)}}" id="connect">Accept</a>
-       			 </div>
-        		<div>
           		  <a class="btn btn-danger btn-sm m-1" href="{{url_for('delete_request',user_a_id=user.id)}}"> Delete</a>
        			 </div>
     		</div>
