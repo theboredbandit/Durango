@@ -31,6 +31,7 @@ def home():
 @login_required
 def dashboard():
     tasks=Task.query.filter_by(user_id=current_user.id).all()
+    tasks.reverse()
     form1=SearchForm()
     form2=SelectDate()
     if form1.validate_on_submit():
@@ -90,6 +91,7 @@ def verify():
 @application.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
+        flash('You are already a user!','info')
         return redirect(url_for('dashboard')) #redirects user to dashboard if already logged in; function name is passed in url_for
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -100,7 +102,7 @@ def register():
 
         db.session.add(user)
         db.session.commit()
-        flash(f'You are almost there.', 'success')
+        flash(f'You are almost there.(Please do not click back button.)', 'success')
         return render_template("phone_verification.html",pn=user.mobileNum)
     return render_template('register.html', title='Register', form=form)
 
@@ -194,6 +196,13 @@ def delete_account():
     tasks=Task.query.filter_by(user_id=current_user.id).all()
     for task in tasks:
         db.session.delete(task)
+    connection=Connection.query.filter_by(user_a_id=current_user.id).all()
+    for c in connection:
+        db.session.delete(c)
+    connection=Connection.query.filter_by(user_b_id=current_user.id).all()
+    for c in connection:
+        db.session.delete(c)
+    db.session.commit()
     db.session.delete(user)
     db.session.commit()
     flash('Account deleted','success')
@@ -352,7 +361,6 @@ If you did not request this, please ignore the mail.
 '''
     mail.send(msg)
 @application.route("/reset_password",methods=['GET', 'POST'])
-@login_required
 def reset_initiate():
     form=InitiateResetForm()
     if form.validate_on_submit():
@@ -435,7 +443,7 @@ def contact_us():
     if current_user.is_authenticated:
         form.email.data=current_user.email
     if form.validate_on_submit():
-        msg=Message('Sent by Durango user',sender=form.email.data,recipients=['durangoadmn@gmail.com']) 
+        msg=Message('Sent by Durango user: '+current_user.username,sender=form.email.data,recipients=['durangoadmn@gmail.com']) 
         msg.body=f'''Sent from Durango contact us page:
         {form.message.data}
 

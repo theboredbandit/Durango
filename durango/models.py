@@ -55,7 +55,6 @@ class Task(db.Model):
         return f"Task('{self.title}','{self.date}','{self.starttime}','{self.endtime}',{self.status}')"
 
 class Connection(db.Model):
-    """Connection between two users to establish a friendship and can see each other's info."""
 
     #__tablename__ = "connections"
 
