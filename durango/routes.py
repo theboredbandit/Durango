@@ -16,9 +16,7 @@ from durango.mail import readmail
 import urllib.request
 import urllib.parse
 from flask_mail import Message
-twilio_account_sid = "AC103eefd5343f4ec238f7fb6c45092d0a"
-twilio_auth_token = "2de91c10b5ce9cd7e3efcec543470dec"
-twilio_number = "+14784002746"
+
 
 #everything here that begins with @ is a decorator
 @application.route("/")
