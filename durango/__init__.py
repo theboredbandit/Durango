@@ -16,13 +16,13 @@ from authy.api import AuthyApiClient
 application = Flask(__name__)
 
 
-application.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
+application.config['SECRET_KEY'] = 'XXXXXXXXXXXXXXXXXXX'
 application.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 #application.config['SQLALCHEMY_TRACK_MODIFICATIONS']=True
 
 #configuring with authy to verify phone number
 
-application.config['AUTHY_API_KEY']='Cur6vF9dwUvuPGqDJhuaFoa7UivqYNzF'
+application.config['AUTHY_API_KEY']='XXXXXXXXXXXXXXXXXX'
 api=AuthyApiClient(application.config['AUTHY_API_KEY'])
 #configuring celery for sms purpose
 
