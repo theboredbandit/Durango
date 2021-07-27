@@ -244,8 +244,8 @@ def send_sms_reminder(task1_id):
 
     def sendPostRequest(reqUrl, apiKey, secretKey, useType, phoneNo, senderId, textMessage):     
       req_params = {
-      'apikey':'GHAV00PT4TX58WKEJPVQGESYMHB3JKSO',
-      'secret':'R73HSSKN8UJ1NYKL',
+      'apikey':'XXXXXXXXXXXXXX',
+      'secret':'XXXXXXXXXXXXXX',
       'usetype':'stage',
       'phone': to,
       'message':body,
