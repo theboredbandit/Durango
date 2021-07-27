@@ -72,7 +72,7 @@ pytz==2019.3
 qrcode==6.1
 
 requests==2.20.1
-rsa==3.4.2
+rsa==4.7
 s3transfer==0.3.3
 semantic-version==2.5.0
 six==1.11.0
